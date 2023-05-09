@@ -31,6 +31,9 @@ module.exports = {
     port: "3000",
     open: true,
   },
+  resolve: {
+    extensions: [".jsx", ".js"],
+  },
   plugins: [
     new HtmlWebpackPlugin({
       template: "./public/index.html",
