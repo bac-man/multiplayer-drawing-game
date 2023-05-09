@@ -1,9 +1,7 @@
 import ReactDOM from "react-dom/client";
-
-const App = () => {
-  return <h1>Test</h1>;
-};
+import GameContainer from "./components/gameContainer";
+import "./style/global.css";
 
 const container = document.getElementById("root");
 const root = ReactDOM.createRoot(container);
-root.render(<App />);
+root.render(<GameContainer />);
