@@ -1,7 +1,25 @@
+@import "../style/mixins.scss";
+
 .container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;
+  padding: 2rem;
   height: 100%;
-  padding: 5rem;
+  background-color: rgb(40, 40, 40);
+  @include landscape() {
+    padding: 0 10rem;
+  }
+  @include desktop() {
+    padding: 0 12rem;
+  }
+
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    @include landscape-or-desktop() {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
 }

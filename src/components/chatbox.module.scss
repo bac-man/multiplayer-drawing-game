@@ -1,0 +1,11 @@
+@import "../style/mixins.scss";
+
+.chatbox {
+  background-color: rgb(140, 140, 140);
+  aspect-ratio: 3 / 1;
+  @include landscape-or-desktop() {
+    flex: 1 1 0;
+    align-self: stretch;
+    aspect-ratio: unset;
+  }
+}
