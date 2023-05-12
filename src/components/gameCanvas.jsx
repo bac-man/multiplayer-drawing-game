@@ -3,7 +3,7 @@ import style from "./gameCanvas.module.scss";
 
 const GameCanvas = ({}) => {
   const canvasRef = useRef();
-  const [mouseDown, setMouseDown] = useState(false);
+  const [lineStarted, setLineStarted] = useState(false);
   const [currentLinePoints, setCurrentLinePoints] = useState([]);
   const drawingOptions = useRef();
 
@@ -53,21 +53,43 @@ const GameCanvas = ({}) => {
 
   const startDrawingLine = (e) => {
     drawLinePoint(e);
-    setMouseDown(true);
+    setLineStarted(true);
+  };
+
+  const endLine = () => {
+    setCurrentLinePoints([]);
+    setLineStarted(false);
+  };
+
+  const getTouchEventCoordinates = (e) => {
+    const touch = e.touches[0];
+    return { clientX: touch.clientX, clientY: touch.clientY };
   };
 
   return (
     <canvas
       ref={canvasRef}
       className={style.canvas}
-      onMouseDown={startDrawingLine}
-      onMouseUp={() => {
-        setMouseDown(false);
-        setCurrentLinePoints([]);
+      onMouseDown={(e) => {
+        startDrawingLine(e);
       }}
+      onMouseUp={endLine}
       onMouseMove={(e) => {
-        if (mouseDown) {
+        if (lineStarted) {
           drawLinePoint(e);
+        }
+      }}
+      onTouchStart={(e) => {
+        startDrawingLine(getTouchEventCoordinates(e));
+      }}
+      onTouchEnd={(e) => {
+        // Prevent artificial mouse events
+        e.preventDefault();
+        endLine();
+      }}
+      onTouchMove={(e) => {
+        if (lineStarted) {
+          drawLinePoint(getTouchEventCoordinates(e));
         }
       }}
     />
