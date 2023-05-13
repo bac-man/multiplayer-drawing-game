@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import style from "./gameCanvas.module.scss";
 
-const GameCanvas = ({}) => {
+const GameCanvas = ({ ws }) => {
   const canvasRef = useRef();
   const [lineStarted, setLineStarted] = useState(false);
   const [currentLinePoints, setCurrentLinePoints] = useState([]);
@@ -14,17 +14,38 @@ const GameCanvas = ({}) => {
       lineWidth: 6,
       strokeStyle: "rgb(0, 0, 0);",
     };
-  }, []);
-
-  const drawLinePoint = (e) => {
+    const ctx = drawingOptions.current.ctx;
     const options = drawingOptions.current;
-    const ctx = options.ctx;
     ctx.lineCap = options.lineCap;
     ctx.lineWidth = options.lineWidth;
     ctx.strokeStyle = options.strokeStyle;
+  }, []);
+
+  ws.addEventListener("message", (message) => {
+    const parsedData = JSON.parse(message.data);
+    switch (parsedData.type) {
+      case "lineData":
+        drawReceivedLine(parsedData.data);
+        break;
+    }
+  });
+
+  const drawLinePoint = (posX, posY, previousPoint) => {
+    const ctx = drawingOptions.current.ctx;
+    ctx.beginPath();
+    ctx.moveTo(posX, posY);
+    ctx.lineTo(posX, posY);
+    ctx.stroke();
+    // Connect the new point to the previous one
+    if (previousPoint) {
+      ctx.lineTo(previousPoint.x, previousPoint.y);
+      ctx.stroke();
+    }
+  };
+
+  const drawCurrentLinePoint = (e) => {
     const canvas = canvasRef.current;
     const canvasRect = canvas.getBoundingClientRect();
-
     const xScale =
       window.getComputedStyle(canvas).getPropertyValue("width").split("px")[0] /
       canvas.width;
@@ -33,32 +54,34 @@ const GameCanvas = ({}) => {
         .getComputedStyle(canvas)
         .getPropertyValue("height")
         .split("px")[0] / canvas.height;
-
     const posX = (e.clientX - canvasRect.left) / xScale;
     const posY = (e.clientY - canvasRect.top) / yScale;
-
-    ctx.beginPath();
-    ctx.moveTo(posX, posY);
-    ctx.lineTo(posX, posY);
-    ctx.stroke();
-
-    const previousPoint = currentLinePoints[currentLinePoints.length - 1];
-    if (previousPoint) {
-      ctx.lineTo(previousPoint.x, previousPoint.y);
-      ctx.stroke();
-    }
-
+    drawLinePoint(posX, posY, currentLinePoints[currentLinePoints.length - 1]);
     currentLinePoints.push({ x: posX, y: posY });
   };
 
   const startDrawingLine = (e) => {
-    drawLinePoint(e);
+    drawCurrentLinePoint(e);
     setLineStarted(true);
   };
 
   const endLine = () => {
-    setCurrentLinePoints([]);
     setLineStarted(false);
+    setCurrentLinePoints([]);
+    ws.send(
+      JSON.stringify({
+        type: "lineData",
+        data: currentLinePoints,
+      })
+    );
+  };
+
+  const drawReceivedLine = (linePoints) => {
+    linePoints.forEach((point, index) => {
+      const posX = point.x;
+      const posY = point.y;
+      drawLinePoint(posX, posY, linePoints[index - 1]);
+    });
   };
 
   const getTouchEventCoordinates = (e) => {
@@ -76,7 +99,7 @@ const GameCanvas = ({}) => {
       onMouseUp={endLine}
       onMouseMove={(e) => {
         if (lineStarted) {
-          drawLinePoint(e);
+          drawCurrentLinePoint(e);
         }
       }}
       onTouchStart={(e) => {
@@ -89,7 +112,7 @@ const GameCanvas = ({}) => {
       }}
       onTouchMove={(e) => {
         if (lineStarted) {
-          drawLinePoint(getTouchEventCoordinates(e));
+          drawCurrentLinePoint(getTouchEventCoordinates(e));
         }
       }}
     />
