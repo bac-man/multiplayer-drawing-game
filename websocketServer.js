@@ -7,12 +7,16 @@ console.log(`WebSocket server listening on port ${port}`);
 const joinedPlayers = [];
 let lineHistory = [];
 let currentDrawer;
+let nextPlayerNumber = 1;
 
 server.on("connection", (ws) => {
-  console.log("A player has connected to the WebSocket server.");
-  joinedPlayers.push(ws);
+  const player = { name: `Player ${nextPlayerNumber}`, ws: ws };
+  nextPlayerNumber++;
+  joinedPlayers.push(player);
+  console.log(`${player.name} has connected to the WebSocket server.`);
   if (!currentDrawer) {
-    currentDrawer = ws;
+    currentDrawer = player;
+    console.log(`${player.name} is now the drawer.`);
     ws.send(JSON.stringify({ type: "drawerStatusChange", data: true }));
   }
   if (lineHistory.length > 0) {
@@ -27,7 +31,7 @@ server.on("connection", (ws) => {
     }
     switch (parsedData?.type) {
       case "newLineData":
-        if (ws !== currentDrawer) {
+        if (ws !== currentDrawer.ws) {
           return;
         }
         const lineData = parsedData.data;
@@ -47,13 +51,21 @@ server.on("connection", (ws) => {
         }
         lineHistory.push(lineData);
         joinedPlayers.forEach((player) => {
-          if (player !== ws) {
-            player.send(
+          if (player.ws !== ws) {
+            player.ws.send(
               JSON.stringify({ type: "newLineData", data: lineData })
             );
           }
         });
         break;
     }
+  });
+  ws.on("close", () => {
+    console.log(`${player.name} has disconnected from the WebSocket server.`);
+    joinedPlayers.forEach((player, index) => {
+      if (player.ws === ws) {
+        joinedPlayers.splice(index, 1);
+      }
+    });
   });
 });
