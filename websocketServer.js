@@ -5,10 +5,14 @@ const server = new WebSocket.Server({ port: port });
 console.log(`WebSocket server listening on port ${port}`);
 
 const joinedPlayers = [];
+let lineHistory = [];
 
 server.on("connection", (ws) => {
   console.log("A player has connected to the WebSocket server.");
   joinedPlayers.push(ws);
+  if (lineHistory.length > 0) {
+    ws.send(JSON.stringify({ type: "lineHistory", data: lineHistory }));
+  }
   ws.on("message", (data) => {
     let parsedData;
     try {
@@ -17,7 +21,7 @@ server.on("connection", (ws) => {
       return;
     }
     switch (parsedData?.type) {
-      case "lineData":
+      case "newLineData":
         const lineData = parsedData.data;
         if (!lineData || !lineData.length || lineData.length == 0) {
           return;
@@ -33,9 +37,12 @@ server.on("connection", (ws) => {
             return;
           }
         }
+        lineHistory.push(lineData);
         joinedPlayers.forEach((player) => {
           if (player !== ws) {
-            player.send(JSON.stringify({ type: "lineData", data: lineData }));
+            player.send(
+              JSON.stringify({ type: "newLineData", data: lineData })
+            );
           }
         });
         break;

@@ -24,8 +24,13 @@ const GameCanvas = ({ ws }) => {
   ws.addEventListener("message", (message) => {
     const parsedData = JSON.parse(message.data);
     switch (parsedData.type) {
-      case "lineData":
+      case "newLineData":
         drawReceivedLine(parsedData.data);
+        break;
+      case "lineHistory":
+        parsedData.data.forEach((line) => {
+          drawReceivedLine(line);
+        });
         break;
     }
   });
@@ -70,7 +75,7 @@ const GameCanvas = ({ ws }) => {
     setCurrentLinePoints([]);
     ws.send(
       JSON.stringify({
-        type: "lineData",
+        type: "newLineData",
         data: currentLinePoints,
       })
     );
