@@ -5,6 +5,7 @@ const GameCanvas = ({ ws }) => {
   const canvasRef = useRef();
   const [lineStarted, setLineStarted] = useState(false);
   const [currentLinePoints, setCurrentLinePoints] = useState([]);
+  const [drawingAllowed, setDrawingAllowed] = useState(false);
   const drawingOptions = useRef();
 
   useEffect(() => {
@@ -31,6 +32,9 @@ const GameCanvas = ({ ws }) => {
         parsedData.data.forEach((line) => {
           drawReceivedLine(line);
         });
+        break;
+      case "drawerStatusChange":
+        setDrawingAllowed(parsedData.data);
         break;
     }
   });
@@ -97,7 +101,9 @@ const GameCanvas = ({ ws }) => {
   return (
     <canvas
       ref={canvasRef}
-      className={style.canvas}
+      className={`${style.canvas} ${
+        drawingAllowed ? null : style.drawingDisabled
+      }`}
       onMouseDown={(e) => {
         startDrawingLine(e);
       }}

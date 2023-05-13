@@ -8,4 +8,7 @@
   @include landscape-or-desktop() {
     flex: 3.5 1 0;
   }
+  &.drawingDisabled {
+    pointer-events: none;
+  }
 }

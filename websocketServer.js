@@ -6,10 +6,15 @@ console.log(`WebSocket server listening on port ${port}`);
 
 const joinedPlayers = [];
 let lineHistory = [];
+let currentDrawer;
 
 server.on("connection", (ws) => {
   console.log("A player has connected to the WebSocket server.");
   joinedPlayers.push(ws);
+  if (!currentDrawer) {
+    currentDrawer = ws;
+    ws.send(JSON.stringify({ type: "drawerStatusChange", data: true }));
+  }
   if (lineHistory.length > 0) {
     ws.send(JSON.stringify({ type: "lineHistory", data: lineHistory }));
   }
@@ -22,6 +27,9 @@ server.on("connection", (ws) => {
     }
     switch (parsedData?.type) {
       case "newLineData":
+        if (ws !== currentDrawer) {
+          return;
+        }
         const lineData = parsedData.data;
         if (!lineData || !lineData.length || lineData.length == 0) {
           return;
