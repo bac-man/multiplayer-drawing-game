@@ -29,12 +29,12 @@ const handleNewLineData = (sender, lineData) => {
   });
 };
 
-const handleChatMessage = (player, message) => {
+const handleChatMessage = (sender, message) => {
   joinedPlayers.forEach((joinedPlayer) => {
     joinedPlayer.ws.send(
       JSON.stringify({
         type: "chatMessage",
-        data: { message: message, sender: player.name },
+        data: { message: message, sender: sender.name },
       })
     );
   });
