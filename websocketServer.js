@@ -6,6 +6,7 @@ console.log(`WebSocket server listening on port ${port}`);
 
 const joinedPlayers = [];
 let lineHistory = [];
+let chatHistory = [];
 let currentDrawer;
 let nextPlayerNumber = 1;
 
@@ -29,15 +30,17 @@ const handleNewLineData = (sender, lineData) => {
   });
 };
 
-const handleChatMessage = (sender, message) => {
+const handleChatMessage = (sender, text) => {
+  const message = { sender: sender.name, text: text };
   joinedPlayers.forEach((joinedPlayer) => {
     joinedPlayer.ws.send(
       JSON.stringify({
         type: "chatMessage",
-        data: { message: message, sender: sender.name },
+        data: message,
       })
     );
   });
+  chatHistory.push(message);
 };
 
 server.on("connection", (ws) => {
@@ -52,6 +55,9 @@ server.on("connection", (ws) => {
   }
   if (lineHistory.length > 0) {
     ws.send(JSON.stringify({ type: "lineHistory", data: lineHistory }));
+  }
+  if (chatHistory.length > 0) {
+    ws.send(JSON.stringify({ type: "chatHistory", data: chatHistory }));
   }
   ws.on("message", (data) => {
     let parsedData;

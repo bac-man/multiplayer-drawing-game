@@ -19,10 +19,13 @@ const Chatbox = ({ ws }) => {
       case "chatMessage":
         messages.push({
           sender: parsedData.data.sender,
-          text: parsedData.data.message,
+          text: parsedData.data.text,
         });
         // Update state with a copy to re-render
         setMessages([...messages]);
+        break;
+      case "chatHistory":
+        setMessages(parsedData.data);
         break;
     }
   });
