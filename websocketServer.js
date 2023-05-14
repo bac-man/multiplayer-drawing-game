@@ -9,6 +9,17 @@ let lineHistory = [];
 let currentDrawer;
 let nextPlayerNumber = 1;
 
+const handleChatMessage = (player, message) => {
+  joinedPlayers.forEach((joinedPlayer) => {
+    joinedPlayer.ws.send(
+      JSON.stringify({
+        type: "chatMessage",
+        data: { message: message, sender: player.name },
+      })
+    );
+  });
+};
+
 server.on("connection", (ws) => {
   const player = { name: `Player ${nextPlayerNumber}`, ws: ws };
   nextPlayerNumber++;
@@ -57,6 +68,9 @@ server.on("connection", (ws) => {
             );
           }
         });
+        break;
+      case "chatMessage":
+        handleChatMessage(player, parsedData.data);
         break;
     }
   });

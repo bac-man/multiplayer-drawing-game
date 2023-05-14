@@ -9,7 +9,7 @@ const GameContainer = ({}) => {
     <div className={style.container}>
       <div className={style.wrapper}>
         <GameCanvas ws={ws.current} />
-        <Chatbox />
+        <Chatbox ws={ws.current} />
       </div>
     </div>
   );

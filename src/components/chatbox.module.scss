@@ -28,10 +28,17 @@
   }
 
   .messageHistory {
+    position: relative;
     flex: 1 1 70%;
     background-color: rgb(190, 190, 190);
     @include landscape-or-desktop() {
       flex-basis: 85%;
+    }
+    .messagesWrapper {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      overflow: scroll;
     }
   }
 }
