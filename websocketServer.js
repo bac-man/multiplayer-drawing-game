@@ -9,6 +9,26 @@ let lineHistory = [];
 let currentDrawer;
 let nextPlayerNumber = 1;
 
+const handleNewLineData = (sender, lineData) => {
+  if (sender.ws !== currentDrawer.ws) {
+    return;
+  }
+  if (!lineData || !lineData.length || lineData.length == 0) {
+    return;
+  }
+  for (const point of lineData) {
+    if (!point || !point.x || isNaN(point.x) || !point.y || isNaN(point.y)) {
+      return;
+    }
+  }
+  lineHistory.push(lineData);
+  joinedPlayers.forEach((player) => {
+    if (player.ws !== sender.ws) {
+      player.ws.send(JSON.stringify({ type: "newLineData", data: lineData }));
+    }
+  });
+};
+
 const handleChatMessage = (player, message) => {
   joinedPlayers.forEach((joinedPlayer) => {
     joinedPlayer.ws.send(
@@ -42,32 +62,7 @@ server.on("connection", (ws) => {
     }
     switch (parsedData?.type) {
       case "newLineData":
-        if (ws !== currentDrawer.ws) {
-          return;
-        }
-        const lineData = parsedData.data;
-        if (!lineData || !lineData.length || lineData.length == 0) {
-          return;
-        }
-        for (const point of lineData) {
-          if (
-            !point ||
-            !point.x ||
-            isNaN(point.x) ||
-            !point.y ||
-            isNaN(point.y)
-          ) {
-            return;
-          }
-        }
-        lineHistory.push(lineData);
-        joinedPlayers.forEach((player) => {
-          if (player.ws !== ws) {
-            player.ws.send(
-              JSON.stringify({ type: "newLineData", data: lineData })
-            );
-          }
-        });
+        handleNewLineData(player, parsedData.data);
         break;
       case "chatMessage":
         handleChatMessage(player, parsedData.data);
