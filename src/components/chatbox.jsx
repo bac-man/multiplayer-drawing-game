@@ -1,9 +1,27 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import style from "./chatbox.module.scss";
 
 const Chatbox = ({ ws }) => {
   const inputRef = useRef();
+  const messagesWrapperRef = useRef();
   const [messages, setMessages] = useState([]);
+  const [initialScrollPerformed, setInitialScrollPerformed] = useState(false);
+
+  useEffect(() => {
+    const messageList = messagesWrapperRef.current;
+    if (!initialScrollPerformed && messages.length > 0) {
+      messageList.scrollTop = messageList.scrollHeight;
+      setInitialScrollPerformed(true);
+    }
+    if (
+      messageList.scrollHeight -
+        messageList.clientHeight -
+        messageList.scrollTop <
+      50
+    ) {
+      messageList.scrollTop = messageList.scrollHeight;
+    }
+  }, [messages]);
 
   const sendMessage = () => {
     const message = inputRef.current.value.trim();
@@ -33,7 +51,7 @@ const Chatbox = ({ ws }) => {
   return (
     <div className={style.chatbox}>
       <div className={style.messageHistory}>
-        <div className={style.messagesWrapper}>
+        <div ref={messagesWrapperRef} className={style.messagesWrapper}>
           {messages.map((message, index) => {
             return (
               <div key={`message${index}`}>
