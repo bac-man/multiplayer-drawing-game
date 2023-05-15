@@ -35,12 +35,12 @@ const Chatbox = ({ ws }) => {
     const parsedData = JSON.parse(message.data);
     switch (parsedData.type) {
       case "chatMessage":
-        messages.push({
+        const updatedMessages = [...messages];
+        updatedMessages.push({
           sender: parsedData.data.sender,
           text: parsedData.data.text,
         });
-        // Update state with a copy to re-render
-        setMessages([...messages]);
+        setMessages(updatedMessages);
         break;
       case "chatHistory":
         setMessages(parsedData.data);
