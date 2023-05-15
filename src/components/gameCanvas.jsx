@@ -2,36 +2,44 @@ import { useEffect, useRef, useState } from "react";
 import style from "./gameCanvas.module.scss";
 
 const GameCanvas = ({ ws }) => {
+  const baselineWidth = 1280;
   const canvasRef = useRef();
+  const wrapperRef = useRef();
   const [lineStarted, setLineStarted] = useState(false);
   const [currentLinePoints, setCurrentLinePoints] = useState([]);
   const [drawingAllowed, setDrawingAllowed] = useState(false);
-  const drawingOptions = useRef();
+  const redrawThrottling = useRef(false);
+  const lineHistory = useRef([]);
+  const drawingOptions = useRef({
+    lineCap: "square",
+    lineWidth: 6,
+    strokeStyle: "rgb(0, 0, 0);",
+  });
+
+  const resizeObserver = new ResizeObserver(() => {
+    updateDimensions();
+  });
 
   useEffect(() => {
-    drawingOptions.current = {
-      ctx: canvasRef.current.getContext("2d"),
-      lineCap: "round",
-      lineWidth: 6,
-      strokeStyle: "rgb(0, 0, 0);",
+    updateDimensions();
+    resizeObserver.observe(canvasRef.current);
+    return () => {
+      resizeObserver.unobserve(canvasRef.current);
     };
-    const ctx = drawingOptions.current.ctx;
-    const options = drawingOptions.current;
-    ctx.lineCap = options.lineCap;
-    ctx.lineWidth = options.lineWidth;
-    ctx.strokeStyle = options.strokeStyle;
   }, []);
 
   ws.addEventListener("message", (message) => {
     const parsedData = JSON.parse(message.data);
     switch (parsedData.type) {
       case "newLineData":
-        drawReceivedLine(parsedData.data);
+        drawFullLine(parsedData.data);
+        break;
+      case "lineHistoryCatchUp":
+        lineHistory.current = parsedData.data;
+        redraw();
         break;
       case "lineHistory":
-        parsedData.data.forEach((line) => {
-          drawReceivedLine(line);
-        });
+        lineHistory.current = parsedData.data;
         break;
       case "drawerStatusChange":
         setDrawingAllowed(parsedData.data);
@@ -39,15 +47,39 @@ const GameCanvas = ({ ws }) => {
     }
   });
 
+  const updateDimensions = () => {
+    if (!redrawThrottling.current) {
+      redrawThrottling.current = true;
+      setTimeout(() => {
+        canvasRef.current.width = canvasRef.current.clientWidth;
+        canvasRef.current.height = canvasRef.current.clientHeight;
+        redraw();
+        redrawThrottling.current = false;
+      }, 250);
+    }
+  };
+
+  const redraw = () => {
+    lineHistory.current.forEach((line) => {
+      drawFullLine(line);
+    });
+  };
+
   const drawLinePoint = (posX, posY, previousPoint) => {
-    const ctx = drawingOptions.current.ctx;
+    const ctx = canvasRef.current.getContext("2d");
+    const scale = canvasRef.current.width / baselineWidth;
+    const options = drawingOptions.current;
+    ctx.lineCap = options.lineCap;
+    ctx.lineWidth = options.lineWidth * scale;
+    ctx.strokeStyle = options.strokeStyle;
+    ctx.lineCap = "square";
     ctx.beginPath();
-    ctx.moveTo(posX, posY);
-    ctx.lineTo(posX, posY);
+    ctx.moveTo(posX * scale, posY * scale);
+    ctx.lineTo(posX * scale, posY * scale);
     ctx.stroke();
     // Connect the new point to the previous one
     if (previousPoint) {
-      ctx.lineTo(previousPoint.x, previousPoint.y);
+      ctx.lineTo(previousPoint.x * scale, previousPoint.y * scale);
       ctx.stroke();
     }
   };
@@ -55,16 +87,9 @@ const GameCanvas = ({ ws }) => {
   const drawCurrentLinePoint = (e) => {
     const canvas = canvasRef.current;
     const canvasRect = canvas.getBoundingClientRect();
-    const xScale =
-      window.getComputedStyle(canvas).getPropertyValue("width").split("px")[0] /
-      canvas.width;
-    const yScale =
-      window
-        .getComputedStyle(canvas)
-        .getPropertyValue("height")
-        .split("px")[0] / canvas.height;
-    const posX = (e.clientX - canvasRect.left) / xScale;
-    const posY = (e.clientY - canvasRect.top) / yScale;
+    const scale = baselineWidth / canvas.width;
+    const posX = (e.clientX - canvasRect.left) * scale;
+    const posY = (e.clientY - canvasRect.top) * scale;
     drawLinePoint(posX, posY, currentLinePoints[currentLinePoints.length - 1]);
     currentLinePoints.push({ x: posX, y: posY });
   };
@@ -85,7 +110,7 @@ const GameCanvas = ({ ws }) => {
     );
   };
 
-  const drawReceivedLine = (linePoints) => {
+  const drawFullLine = (linePoints) => {
     linePoints.forEach((point, index) => {
       const posX = point.x;
       const posY = point.y;
@@ -99,34 +124,36 @@ const GameCanvas = ({ ws }) => {
   };
 
   return (
-    <canvas
-      ref={canvasRef}
-      className={`${style.canvas} ${
-        drawingAllowed ? null : style.drawingDisabled
-      }`}
-      onMouseDown={(e) => {
-        startDrawingLine(e);
-      }}
-      onMouseUp={endLine}
-      onMouseMove={(e) => {
-        if (lineStarted) {
-          drawCurrentLinePoint(e);
-        }
-      }}
-      onTouchStart={(e) => {
-        startDrawingLine(getTouchEventCoordinates(e));
-      }}
-      onTouchEnd={(e) => {
-        // Prevent artificial mouse events
-        e.preventDefault();
-        endLine();
-      }}
-      onTouchMove={(e) => {
-        if (lineStarted) {
-          drawCurrentLinePoint(getTouchEventCoordinates(e));
-        }
-      }}
-    />
+    <div ref={wrapperRef} className={style.wrapper}>
+      <canvas
+        ref={canvasRef}
+        className={`${style.canvas} ${
+          drawingAllowed ? null : style.drawingDisabled
+        }`}
+        onMouseDown={(e) => {
+          startDrawingLine(e);
+        }}
+        onMouseUp={endLine}
+        onMouseMove={(e) => {
+          if (lineStarted) {
+            drawCurrentLinePoint(e);
+          }
+        }}
+        onTouchStart={(e) => {
+          startDrawingLine(getTouchEventCoordinates(e));
+        }}
+        onTouchEnd={(e) => {
+          // Prevent artificial mouse events
+          e.preventDefault();
+          endLine();
+        }}
+        onTouchMove={(e) => {
+          if (lineStarted) {
+            drawCurrentLinePoint(getTouchEventCoordinates(e));
+          }
+        }}
+      />
+    </div>
   );
 };
 

@@ -27,6 +27,7 @@ const handleNewLineData = (sender, lineData) => {
     if (player.ws !== sender.ws) {
       player.ws.send(JSON.stringify({ type: "newLineData", data: lineData }));
     }
+    player.ws.send(JSON.stringify({ type: "lineHistory", data: lineHistory }));
   });
 };
 
@@ -54,7 +55,7 @@ server.on("connection", (ws) => {
     ws.send(JSON.stringify({ type: "drawerStatusChange", data: true }));
   }
   if (lineHistory.length > 0) {
-    ws.send(JSON.stringify({ type: "lineHistory", data: lineHistory }));
+    ws.send(JSON.stringify({ type: "lineHistoryCatchUp", data: lineHistory }));
   }
   if (chatHistory.length > 0) {
     ws.send(JSON.stringify({ type: "chatHistory", data: chatHistory }));
