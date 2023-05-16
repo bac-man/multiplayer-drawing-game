@@ -34,7 +34,7 @@ const GameCanvas = ({ ws }) => {
       case "newLineData":
         drawFullLine(parsedData.data);
         break;
-      case "lineHistoryCatchUp":
+      case "lineHistoryWithRedraw":
         lineHistory.current = parsedData.data;
         redraw();
         break;
@@ -60,6 +60,9 @@ const GameCanvas = ({ ws }) => {
   };
 
   const redraw = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     lineHistory.current.forEach((line) => {
       drawFullLine(line);
     });

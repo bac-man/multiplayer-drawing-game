@@ -55,7 +55,7 @@ const Chatbox = ({ ws }) => {
           {messages.map((message, index) => {
             return (
               <div key={`message${index}`}>
-                <span>{message.sender}: </span>
+                {message.sender && <span>{message.sender}: </span>}
                 <span>{message.text}</span>
               </div>
             );
