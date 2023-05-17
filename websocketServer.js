@@ -107,6 +107,13 @@ const handleChatMessage = (sender, text) => {
 };
 
 const startNewRound = () => {
+  if (joinedPlayers.length == 0) {
+    currentDrawer = null;
+    currentWord = null;
+    previousDrawers = [];
+    usedWords = [];
+    return;
+  }
   let previousWord;
   if (currentWord) {
     previousWord = currentWord;
