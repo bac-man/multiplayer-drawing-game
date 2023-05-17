@@ -90,27 +90,7 @@ const handleCorrectGuess = (guesser) => {
   sendMessageToPlayers("chatMessage", message);
   chatHistory.push(message);
 
-  const previousWord = currentWord;
-  usedWords.push(currentWord);
-  selectNewWord(previousWord);
-
-  const previousDrawer = currentDrawer;
-  previousDrawers.push(previousDrawer);
-  selectNewDrawer();
-
-  sendMessageToPlayer(previousDrawer, "drawerStatusChange", false);
-  sendMessageToPlayer(currentDrawer, "drawerStatusChange", true);
-  sendMessageToPlayer(
-    currentDrawer,
-    "drawerInfoUpdate",
-    getDrawerInfoMessage(true)
-  );
-
-  lineHistory = [];
-
-  // Clear all players' canvases
-  sendMessageToPlayers("lineHistoryWithRedraw", lineHistory);
-  sendMessageToPlayers("drawerInfoUpdate", getDrawerInfoMessage(), true);
+  startNewRound();
 };
 
 const handleChatMessage = (sender, text) => {
@@ -126,6 +106,33 @@ const handleChatMessage = (sender, text) => {
   }
 };
 
+const startNewRound = () => {
+  let previousWord;
+  if (currentWord) {
+    previousWord = currentWord;
+    usedWords.push(previousWord);
+  }
+  if (currentDrawer) {
+    const previousDrawer = currentDrawer;
+    previousDrawers.push(previousDrawer);
+    sendMessageToPlayer(previousDrawer, "drawerStatusChange", false);
+  }
+  selectNewDrawer();
+  selectNewWord(previousWord);
+  sendMessageToPlayer(currentDrawer, "drawerStatusChange", true);
+  sendMessageToPlayer(
+    currentDrawer,
+    "drawerInfoUpdate",
+    getDrawerInfoMessage(true)
+  );
+  sendMessageToPlayers("drawerInfoUpdate", getDrawerInfoMessage(), true);
+  if (lineHistory.length > 0) {
+    lineHistory = [];
+    // Clear all players' canvases
+    sendMessageToPlayers("lineHistoryWithRedraw", lineHistory);
+  }
+};
+
 const getRandomNumber = (max) => {
   return Math.floor(Math.random() * (max + 1));
 };
@@ -138,15 +145,7 @@ server.on("connection", (ws) => {
   if (currentDrawer) {
     sendMessageToPlayer(player, "drawerInfoUpdate", getDrawerInfoMessage());
   } else {
-    selectNewDrawer();
-    selectNewWord();
-    sendMessageToPlayer(currentDrawer, "drawerStatusChange", true);
-    sendMessageToPlayer(
-      currentDrawer,
-      "drawerInfoUpdate",
-      getDrawerInfoMessage(true)
-    );
-    sendMessageToPlayers("drawerInfoUpdate", getDrawerInfoMessage(), true);
+    startNewRound();
   }
   if (lineHistory.length > 0) {
     sendMessageToPlayer(player, "lineHistoryWithRedraw", lineHistory);
@@ -172,10 +171,15 @@ server.on("connection", (ws) => {
   });
   ws.on("close", () => {
     console.log(`${player.name} has disconnected from the WebSocket server.`);
+
     joinedPlayers.forEach((player, index) => {
       if (player.ws === ws) {
         joinedPlayers.splice(index, 1);
       }
     });
+    if (player.ws === currentDrawer.ws) {
+      console.log("The drawer has left. Starting a new round.");
+      startNewRound();
+    }
   });
 });
