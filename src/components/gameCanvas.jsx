@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import style from "./gameCanvas.module.scss";
 
-const GameCanvas = ({ ws }) => {
+const GameCanvas = ({ ws, brushStyle }) => {
   const baselineWidth = 1280;
   const canvasRef = useRef();
   const wrapperRef = useRef();
@@ -10,11 +10,6 @@ const GameCanvas = ({ ws }) => {
   const [drawingAllowed, setDrawingAllowed] = useState(false);
   const redrawThrottling = useRef(false);
   const lineHistory = useRef([]);
-  const drawingOptions = useRef({
-    lineCap: "square",
-    lineWidth: 6,
-    strokeStyle: "rgb(0, 0, 0);",
-  });
 
   const resizeObserver = new ResizeObserver(() => {
     updateDimensions();
@@ -68,14 +63,12 @@ const GameCanvas = ({ ws }) => {
     });
   };
 
-  const drawLinePoint = (posX, posY, previousPoint) => {
+  const drawLinePoint = (posX, posY, options, previousPoint) => {
     const ctx = canvasRef.current.getContext("2d");
     const scale = canvasRef.current.width / baselineWidth;
-    const options = drawingOptions.current;
     ctx.lineCap = options.lineCap;
     ctx.lineWidth = options.lineWidth * scale;
     ctx.strokeStyle = options.strokeStyle;
-    ctx.lineCap = "square";
     ctx.beginPath();
     ctx.moveTo(posX * scale, posY * scale);
     ctx.lineTo(posX * scale, posY * scale);
@@ -93,8 +86,13 @@ const GameCanvas = ({ ws }) => {
     const scale = baselineWidth / canvas.width;
     const posX = (e.clientX - canvasRect.left) * scale;
     const posY = (e.clientY - canvasRect.top) * scale;
-    drawLinePoint(posX, posY, currentLinePoints[currentLinePoints.length - 1]);
-    currentLinePoints.push({ x: posX, y: posY });
+    drawLinePoint(
+      posX,
+      posY,
+      brushStyle,
+      currentLinePoints[currentLinePoints.length - 1]
+    );
+    currentLinePoints.push({ x: posX, y: posY, options: brushStyle });
   };
 
   const startDrawingLine = (e) => {
@@ -117,7 +115,7 @@ const GameCanvas = ({ ws }) => {
     linePoints.forEach((point, index) => {
       const posX = point.x;
       const posY = point.y;
-      drawLinePoint(posX, posY, linePoints[index - 1]);
+      drawLinePoint(posX, posY, point.options, linePoints[index - 1]);
     });
   };
 

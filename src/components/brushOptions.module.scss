@@ -1,0 +1,22 @@
+.brushOptions {
+  position: relative;
+  padding: 0.5rem;
+  background-color: rgb(85, 85, 85);
+  .options {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: flex;
+    gap: 1rem;
+    padding: 0.5rem;
+    background-color: rgb(85, 85, 85);
+    transform: translateY(-100%);
+    .field {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+  }
+}
