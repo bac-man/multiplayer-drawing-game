@@ -21,6 +21,10 @@ const Chatbox = ({ ws }) => {
     ) {
       messageList.scrollTop = messageList.scrollHeight;
     }
+    ws.addEventListener("message", messageHandler);
+    return () => {
+      ws.removeEventListener("message", messageHandler);
+    };
   }, [messages]);
 
   const sendMessage = () => {
@@ -31,7 +35,7 @@ const Chatbox = ({ ws }) => {
     inputRef.current.value = "";
   };
 
-  ws.addEventListener("message", (message) => {
+  const messageHandler = (message) => {
     const parsedData = JSON.parse(message.data);
     switch (parsedData.type) {
       case "chatMessage":
@@ -46,7 +50,7 @@ const Chatbox = ({ ws }) => {
         setMessages(parsedData.data);
         break;
     }
-  });
+  };
 
   return (
     <div className={style.chatbox}>
