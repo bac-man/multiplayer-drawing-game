@@ -5,6 +5,7 @@ const Chatbox = ({ ws }) => {
   const inputRef = useRef();
   const messagesWrapperRef = useRef();
   const [messages, setMessages] = useState([]);
+  const messagesRef = useRef(messages);
   const [initialScrollPerformed, setInitialScrollPerformed] = useState(false);
 
   useEffect(() => {
@@ -35,18 +36,24 @@ const Chatbox = ({ ws }) => {
     inputRef.current.value = "";
   };
 
+  const addNewMessage = (text, sender) => {
+    // Update the messages state via ref to avoid missing messages when multiple
+    // are received in a short timespan (state updates are not synchronous/instant)
+    messagesRef.current.push({
+      sender: sender,
+      text: text,
+    });
+    setMessages([...messagesRef.current]);
+  };
+
   const messageHandler = (message) => {
     const parsedData = JSON.parse(message.data);
     switch (parsedData.type) {
       case "chatMessage":
-        const updatedMessages = [...messages];
-        updatedMessages.push({
-          sender: parsedData.data.sender,
-          text: parsedData.data.text,
-        });
-        setMessages(updatedMessages);
+        addNewMessage(parsedData.data.text, parsedData.data.sender);
         break;
       case "chatHistory":
+        messagesRef.current = parsedData.data;
         setMessages(parsedData.data);
         break;
     }
