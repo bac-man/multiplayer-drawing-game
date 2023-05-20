@@ -50,7 +50,7 @@ const selectNewWord = (previousWord = null) => {
   console.log(`"${currentWord}" was chosen as the word.`);
 };
 
-const selectNewDrawer = () => {
+const selectNewDrawer = (sendUpdateMessage) => {
   let newDrawerSelected = false;
   for (const joinedPlayer of joinedPlayers) {
     if (!previousDrawers.includes(joinedPlayer)) {
@@ -64,6 +64,9 @@ const selectNewDrawer = () => {
     currentDrawer = joinedPlayers[0];
   }
   console.log(`${currentDrawer.name} was chosen as the drawer.`);
+  if (sendUpdateMessage) {
+    sendChatMessageToPlayers(`${currentDrawer.name} is now the drawer.`);
+  }
 };
 
 const handleNewLineData = (sender, lineData) => {
@@ -84,13 +87,17 @@ const handleNewLineData = (sender, lineData) => {
 };
 
 const handleCorrectGuess = (guesser) => {
-  const message = {
-    text: `${guesser} guessed the word! It was "${currentWord.toLowerCase()}".`,
-  };
-  sendMessageToPlayers("chatMessage", message);
-  chatHistory.push(message);
+  sendChatMessageToPlayers(
+    `${guesser} guessed the word! It was "${currentWord.toLowerCase()}".`
+  );
 
   startNewRound();
+};
+
+const sendChatMessageToPlayers = (text, sender) => {
+  const message = { sender: sender, text: text };
+  sendMessageToPlayers("chatMessage", message);
+  chatHistory.push(message);
 };
 
 const handleChatMessage = (sender, text) => {
@@ -100,13 +107,11 @@ const handleChatMessage = (sender, text) => {
   ) {
     handleCorrectGuess(sender.name);
   } else {
-    const message = { sender: sender.name, text: text };
-    sendMessageToPlayers("chatMessage", message);
-    chatHistory.push(message);
+    sendChatMessageToPlayers(text, sender.name);
   }
 };
 
-const startNewRound = () => {
+const startNewRound = (sendDrawerUpdateMessage = true) => {
   if (joinedPlayers.length == 0) {
     currentDrawer = null;
     currentWord = null;
@@ -124,7 +129,7 @@ const startNewRound = () => {
     previousDrawers.push(previousDrawer);
     sendMessageToPlayer(previousDrawer, "drawerStatusChange", false);
   }
-  selectNewDrawer();
+  selectNewDrawer(sendDrawerUpdateMessage);
   selectNewWord(previousWord);
   sendMessageToPlayer(currentDrawer, "drawerStatusChange", true);
   sendMessageToPlayer(
@@ -149,6 +154,7 @@ server.on("connection", (ws) => {
   nextPlayerNumber++;
   joinedPlayers.push(player);
   console.log(`${player.name} has connected to the WebSocket server.`);
+  sendChatMessageToPlayers(`${player.name} has joined.`);
   if (currentDrawer) {
     sendMessageToPlayer(player, "drawerInfoUpdate", getDrawerInfoMessage());
   } else {
@@ -178,7 +184,7 @@ server.on("connection", (ws) => {
   });
   ws.on("close", () => {
     console.log(`${player.name} has disconnected from the WebSocket server.`);
-
+    let leaveMessage = `${player.name} has left.`;
     joinedPlayers.forEach((player, index) => {
       if (player.ws === ws) {
         joinedPlayers.splice(index, 1);
@@ -186,7 +192,10 @@ server.on("connection", (ws) => {
     });
     if (player.ws === currentDrawer.ws) {
       console.log("The drawer has left. Starting a new round.");
-      startNewRound();
+
+      startNewRound(false);
+      leaveMessage += ` They were the drawer, so ${currentDrawer.name} was selected as the new drawer.`;
     }
+    sendChatMessageToPlayers(leaveMessage);
   });
 });
