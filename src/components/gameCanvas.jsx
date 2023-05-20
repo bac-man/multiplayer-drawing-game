@@ -18,12 +18,14 @@ const GameCanvas = ({ ws, brushStyle }) => {
   useEffect(() => {
     updateDimensions();
     resizeObserver.observe(canvasRef.current);
+    ws.addEventListener("message", messageHandler);
     return () => {
       resizeObserver.unobserve(canvasRef.current);
+      ws.removeEventListener("message", messageHandler);
     };
   }, []);
 
-  ws.addEventListener("message", (message) => {
+  const messageHandler = (message) => {
     const parsedData = JSON.parse(message.data);
     switch (parsedData.type) {
       case "newLineData":
@@ -40,7 +42,7 @@ const GameCanvas = ({ ws, brushStyle }) => {
         setDrawingAllowed(parsedData.data);
         break;
     }
-  });
+  };
 
   const updateDimensions = () => {
     if (!redrawThrottling.current) {
