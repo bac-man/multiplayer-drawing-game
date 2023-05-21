@@ -90,8 +90,15 @@ const handleCorrectGuess = (guesser) => {
   sendChatMessageToPlayers(
     `${guesser} guessed the word! It was "${currentWord.toLowerCase()}".`
   );
-
   startNewRound();
+};
+
+const handleUndoline = (sender) => {
+  if (sender.ws !== currentDrawer.ws || lineHistory.length == 0) {
+    return;
+  }
+  lineHistory.pop();
+  sendMessageToPlayers("lineHistoryWithRedraw", lineHistory);
 };
 
 const sendChatMessageToPlayers = (text, sender) => {
@@ -179,6 +186,9 @@ server.on("connection", (ws) => {
         break;
       case "chatMessage":
         handleChatMessage(player, parsedData.data);
+        break;
+      case "undoLine":
+        handleUndoline(player);
         break;
     }
   });

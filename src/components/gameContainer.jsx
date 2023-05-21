@@ -19,7 +19,11 @@ const GameContainer = ({ ws }) => {
         <GameCanvas ws={ws} brushStyle={brushStyle} />
         <Chatbox ws={ws} />
       </div>
-      <BrushOptions brushStyle={brushStyle} setBrushStyle={setBrushStyle} />
+      <BrushOptions
+        ws={ws}
+        brushStyle={brushStyle}
+        setBrushStyle={setBrushStyle}
+      />
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import style from "./brushOptions.module.scss";
 
-const BrushOptions = ({ brushStyle, setBrushStyle }) => {
+const BrushOptions = ({ ws, brushStyle, setBrushStyle }) => {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [color, setColor] = useState(brushStyle.strokeStyle);
   const [size, setSize] = useState(brushStyle.lineWidth);
@@ -21,6 +21,13 @@ const BrushOptions = ({ brushStyle, setBrushStyle }) => {
         }}
       >
         {`${optionsVisible ? "Hide" : "Show"} brush options`}
+      </button>
+      <button
+        onClick={() => {
+          ws.send(JSON.stringify({ type: "undoLine" }));
+        }}
+      >
+        Undo
       </button>
       {optionsVisible && (
         <div className={style.options}>
