@@ -6,20 +6,11 @@ const Chatbox = ({ ws }) => {
   const messagesWrapperRef = useRef();
   const [messages, setMessages] = useState([]);
   const messagesRef = useRef(messages);
-  const [initialScrollPerformed, setInitialScrollPerformed] = useState(false);
+  const [autoScrolling, setAutoScrolling] = useState(true);
 
   useEffect(() => {
     const messageList = messagesWrapperRef.current;
-    if (!initialScrollPerformed && messages.length > 0) {
-      messageList.scrollTop = messageList.scrollHeight;
-      setInitialScrollPerformed(true);
-    }
-    if (
-      messageList.scrollHeight -
-        messageList.clientHeight -
-        messageList.scrollTop <
-      50
-    ) {
+    if (autoScrolling) {
       messageList.scrollTop = messageList.scrollHeight;
     }
     ws.addEventListener("message", messageHandler);
@@ -62,7 +53,34 @@ const Chatbox = ({ ws }) => {
   return (
     <div className={style.chatbox}>
       <div className={style.messageHistory}>
-        <div ref={messagesWrapperRef} className={style.messagesWrapper}>
+        {!autoScrolling && (
+          <div
+            className={style.autoScrollMessage}
+            onClick={() => {
+              messagesWrapperRef.current.scrollTop =
+                messagesWrapperRef.current.scrollHeight;
+            }}
+          >
+            <span>Continue auto scrolling</span>
+            <div className={style.arrow} />
+          </div>
+        )}
+        <div
+          ref={messagesWrapperRef}
+          className={style.messagesWrapper}
+          onScroll={(e) => {
+            if (
+              e.target.scrollHeight -
+                e.target.clientHeight -
+                e.target.scrollTop <=
+              20
+            ) {
+              setAutoScrolling(true);
+            } else {
+              setAutoScrolling(false);
+            }
+          }}
+        >
           {messages.map((message, index) => {
             return (
               <div key={`message${index}`}>
