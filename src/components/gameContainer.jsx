@@ -4,6 +4,7 @@ import DrawerInfo from "./drawerInfo";
 import GameCanvas from "./gameCanvas";
 import BrushOptions from "./brushOptions";
 import style from "./gameContainer.module.scss";
+import Timer from "./timer";
 
 const GameContainer = ({ ws }) => {
   const [brushStyle, setBrushStyle] = useState({
@@ -14,6 +15,7 @@ const GameContainer = ({ ws }) => {
 
   return (
     <div className={style.container}>
+      <Timer ws={ws} />
       <DrawerInfo ws={ws} />
       <div className={style.wrapper}>
         <GameCanvas ws={ws} brushStyle={brushStyle} />

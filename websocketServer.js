@@ -13,6 +13,9 @@ const wordList = ["House", "Car", "Flower", "Star"];
 let currentWord;
 let usedWords = [];
 let previousDrawers = [];
+const maxRoundTime = 60;
+let currentRoundTime;
+let roundTimerInterval;
 
 const sendMessageToPlayers = (type, data, excludeCurrentDrawer = false) => {
   joinedPlayers.forEach((player) => {
@@ -150,6 +153,26 @@ const startNewRound = (sendDrawerUpdateMessage = true) => {
     // Clear all players' canvases
     sendMessageToPlayers("lineHistoryWithRedraw", lineHistory);
   }
+  if (roundTimerInterval) {
+    clearInterval(roundTimerInterval);
+  }
+  currentRoundTime = maxRoundTime;
+  sendMessageToPlayers("roundTimeUpdate", currentRoundTime);
+  roundTimerInterval = setInterval(decrementRoundTimer, 1000);
+};
+
+const decrementRoundTimer = () => {
+  currentRoundTime--;
+  if (currentRoundTime < 1) {
+    clearInterval(roundTimerInterval);
+    console.log("Nobody managed to guess the word. Starting a new round.");
+    sendChatMessageToPlayers(
+      `Too bad, nobody guessed the word! It was "${currentWord.toLowerCase()}".`
+    );
+    startNewRound();
+  } else {
+    sendMessageToPlayers("roundTimeUpdate", currentRoundTime);
+  }
 };
 
 const getRandomNumber = (max) => {
@@ -173,6 +196,7 @@ server.on("connection", (ws) => {
   if (chatHistory.length > 0) {
     sendMessageToPlayer(player, "chatHistory", chatHistory);
   }
+  sendMessageToPlayer(player, "roundTimeUpdate", currentRoundTime);
   ws.on("message", (data) => {
     let parsedData;
     try {
@@ -202,7 +226,6 @@ server.on("connection", (ws) => {
     });
     if (player.ws === currentDrawer.ws) {
       console.log("The drawer has left. Starting a new round.");
-
       startNewRound(false);
       leaveMessage += ` They were the drawer, so ${currentDrawer.name} was selected as the new drawer.`;
     }
