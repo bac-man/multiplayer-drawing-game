@@ -39,6 +39,22 @@
       height: 100%;
       width: 100%;
       overflow-y: scroll;
+      .message {
+        span {
+          &.red {
+            color: rgb(120, 20, 0);
+          }
+          &.green {
+            color: rgb(50, 170, 80);
+          }
+          &.blue {
+            color: rgb(0, 85, 150);
+          }
+          &.gray {
+            color: rgb(80, 80, 80);
+          }
+        }
+      }
     }
     .autoScrollMessage {
       position: absolute;

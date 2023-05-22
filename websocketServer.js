@@ -68,7 +68,11 @@ const selectNewDrawer = (sendUpdateMessage) => {
   }
   console.log(`${currentDrawer.name} was chosen as the drawer.`);
   if (sendUpdateMessage) {
-    sendChatMessageToPlayers(`${currentDrawer.name} is now the drawer.`);
+    sendChatMessageToPlayers(
+      `${currentDrawer.name} is now the drawer.`,
+      null,
+      "blue"
+    );
   }
 };
 
@@ -91,7 +95,9 @@ const handleNewLineData = (sender, lineData) => {
 
 const handleCorrectGuess = (guesser) => {
   sendChatMessageToPlayers(
-    `${guesser} guessed the word! It was "${currentWord.toLowerCase()}".`
+    `${guesser} guessed the word! It was "${currentWord.toLowerCase()}".`,
+    null,
+    "green"
   );
   startNewRound();
 };
@@ -104,8 +110,8 @@ const handleUndoline = (sender) => {
   sendMessageToPlayers("lineHistoryWithRedraw", lineHistory);
 };
 
-const sendChatMessageToPlayers = (text, sender) => {
-  const message = { sender: sender, text: text };
+const sendChatMessageToPlayers = (text, sender, className) => {
+  const message = { sender: sender, text: text, className: className };
   sendMessageToPlayers("chatMessage", message);
   chatHistory.push(message);
 };
@@ -167,7 +173,9 @@ const decrementRoundTimer = () => {
     clearInterval(roundTimerInterval);
     console.log("Nobody managed to guess the word. Starting a new round.");
     sendChatMessageToPlayers(
-      `Too bad, nobody guessed the word! It was "${currentWord.toLowerCase()}".`
+      `Too bad, nobody guessed the word! It was "${currentWord.toLowerCase()}".`,
+      null,
+      "red"
     );
     startNewRound();
   } else {
@@ -184,7 +192,7 @@ server.on("connection", (ws) => {
   nextPlayerNumber++;
   joinedPlayers.push(player);
   console.log(`${player.name} has connected to the WebSocket server.`);
-  sendChatMessageToPlayers(`${player.name} has joined.`);
+  sendChatMessageToPlayers(`${player.name} has joined.`, null, "gray");
   if (currentDrawer) {
     sendMessageToPlayer(player, "drawerInfoUpdate", getDrawerInfoMessage());
   } else {
@@ -219,6 +227,7 @@ server.on("connection", (ws) => {
   ws.on("close", () => {
     console.log(`${player.name} has disconnected from the WebSocket server.`);
     let leaveMessage = `${player.name} has left.`;
+    let leaveMessageColor = "gray";
     joinedPlayers.forEach((player, index) => {
       if (player.ws === ws) {
         joinedPlayers.splice(index, 1);
@@ -228,7 +237,8 @@ server.on("connection", (ws) => {
       console.log("The drawer has left. Starting a new round.");
       startNewRound(false);
       leaveMessage += ` They were the drawer, so ${currentDrawer.name} was selected as the new drawer.`;
+      leaveMessageColor = "blue";
     }
-    sendChatMessageToPlayers(leaveMessage);
+    sendChatMessageToPlayers(leaveMessage, null, leaveMessageColor);
   });
 });

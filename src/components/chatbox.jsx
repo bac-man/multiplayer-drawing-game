@@ -27,12 +27,13 @@ const Chatbox = ({ ws }) => {
     inputRef.current.value = "";
   };
 
-  const addNewMessage = (text, sender) => {
+  const addNewMessage = (text, sender, className) => {
     // Update the messages state via ref to avoid missing messages when multiple
     // are received in a short timespan (state updates are not synchronous/instant)
     messagesRef.current.push({
       sender: sender,
       text: text,
+      className: className,
     });
     setMessages([...messagesRef.current]);
   };
@@ -41,7 +42,12 @@ const Chatbox = ({ ws }) => {
     const parsedData = JSON.parse(message.data);
     switch (parsedData.type) {
       case "chatMessage":
-        addNewMessage(parsedData.data.text, parsedData.data.sender);
+        const messageData = parsedData.data;
+        addNewMessage(
+          messageData.text,
+          messageData.sender,
+          messageData.className
+        );
         break;
       case "chatHistory":
         messagesRef.current = parsedData.data;
@@ -83,9 +89,9 @@ const Chatbox = ({ ws }) => {
         >
           {messages.map((message, index) => {
             return (
-              <div key={`message${index}`}>
+              <div key={`message${index}`} className={style.message}>
                 {message.sender && <span>{message.sender}: </span>}
-                <span>{message.text}</span>
+                <span className={style[message.className]}>{message.text}</span>
               </div>
             );
           })}
