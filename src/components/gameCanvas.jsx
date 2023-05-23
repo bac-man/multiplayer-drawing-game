@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import style from "./gameCanvas.module.scss";
 
-const GameCanvas = ({ ws, brushStyle }) => {
+const GameCanvas = ({ ws, brushStyle, drawingAllowed }) => {
   const baselineWidth = 1280;
   const canvasRef = useRef();
   const wrapperRef = useRef();
   const [lineStarted, setLineStarted] = useState(false);
   const [currentLinePoints, setCurrentLinePoints] = useState([]);
-  const [drawingAllowed, setDrawingAllowed] = useState(false);
   const redrawThrottling = useRef(false);
   const lineHistory = useRef([]);
 
@@ -37,9 +36,6 @@ const GameCanvas = ({ ws, brushStyle }) => {
         break;
       case "lineHistory":
         lineHistory.current = parsedData.data;
-        break;
-      case "drawerStatusChange":
-        setDrawingAllowed(parsedData.data);
         break;
     }
   };
