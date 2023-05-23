@@ -1,4 +1,11 @@
 const WebSocket = require("ws");
+let wordList;
+try {
+  wordList = require("./data/wordList.json");
+} catch (e) {
+  console.log("Unable to find word list. Exiting.");
+  return;
+}
 
 const port = 3001;
 const server = new WebSocket.Server({ port: port });
@@ -9,7 +16,6 @@ let lineHistory = [];
 let chatHistory = [];
 let currentDrawer;
 let nextPlayerNumber = 1;
-const wordList = ["House", "Car", "Flower", "Star"];
 let currentWord;
 let usedWords = [];
 let previousDrawers = [];
