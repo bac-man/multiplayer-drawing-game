@@ -236,8 +236,10 @@ server.on("connection", (ws) => {
     if (player.ws === currentDrawer.ws) {
       console.log("The drawer has left. Starting a new round.");
       startNewRound(false);
-      leaveMessage += ` They were the drawer, so ${currentDrawer.name} was selected as the new drawer.`;
-      leaveMessageColor = "blue";
+      if (currentDrawer) {
+        leaveMessage += ` They were the drawer, so ${currentDrawer.name} was selected as the new drawer.`;
+        leaveMessageColor = "blue";
+      }
     }
     sendChatMessageToPlayers(leaveMessage, null, leaveMessageColor);
   });
