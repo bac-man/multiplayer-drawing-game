@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import style from "./brushOptions.module.scss";
 
-const BrushOptions = ({ ws, brushStyle, setBrushStyle, drawingAllowed }) => {
+const BrushOptions = ({
+  ws,
+  brushStyle,
+  setBrushStyle,
+  drawingAllowed,
+  maxBrushSize,
+}) => {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [color, setColor] = useState(brushStyle.strokeStyle);
   const [size, setSize] = useState(brushStyle.lineWidth);
@@ -56,7 +62,7 @@ const BrushOptions = ({ ws, brushStyle, setBrushStyle, drawingAllowed }) => {
               type={"range"}
               name={"brushSize"}
               min={1}
-              max={50}
+              max={maxBrushSize}
               value={size}
               onChange={(e) => {
                 setSize(e.target.value);

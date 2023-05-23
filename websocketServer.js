@@ -87,6 +87,17 @@ const handleNewLineData = (sender, lineData) => {
     if (!point || !point.x || isNaN(point.x) || !point.y || isNaN(point.y)) {
       return;
     }
+    // If the max size is changed here, it should also be changed
+    // in gameContainer.jsx accordingly
+    if (
+      point.options.lineWidth > 100 ||
+      point.options.lineWidth < 1 ||
+      point.options.lineCap !== "round"
+    ) {
+      // Remove the disallowed line from the drawer's canvas
+      sendMessageToPlayer(currentDrawer, "lineHistoryWithRedraw", lineHistory);
+      return;
+    }
   }
   lineHistory.push(lineData);
   sendMessageToPlayers("lineHistory", lineHistory);

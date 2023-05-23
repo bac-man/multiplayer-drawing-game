@@ -7,8 +7,11 @@ import style from "./gameContainer.module.scss";
 import Timer from "./timer";
 
 const GameContainer = ({ ws }) => {
+  // If the max size is changed here, it should also be changed
+  // in webSocketServer.js accordingly
+  const maxBrushSize = 100;
   const [brushStyle, setBrushStyle] = useState({
-    lineWidth: 30,
+    lineWidth: parseInt(maxBrushSize * 0.333),
     lineCap: "round",
     strokeStyle: "#000000",
   });
@@ -46,6 +49,7 @@ const GameContainer = ({ ws }) => {
         brushStyle={brushStyle}
         setBrushStyle={setBrushStyle}
         drawingAllowed={drawingAllowed}
+        maxBrushSize={maxBrushSize}
       />
     </div>
   );
