@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import Chatbox from "./chatbox";
-import DrawerInfo from "./drawerInfo";
+import RoundInfo from "./roundInfo";
 import GameCanvas from "./gameCanvas";
 import BrushOptions from "./brushOptions";
 import style from "./gameContainer.module.scss";
-import Timer from "./timer";
 
 const GameContainer = ({ ws }) => {
   // If the max size is changed here, it should also be changed
@@ -34,8 +33,7 @@ const GameContainer = ({ ws }) => {
 
   return (
     <div className={style.container}>
-      <Timer ws={ws} />
-      <DrawerInfo ws={ws} />
+      <RoundInfo ws={ws} />
       <div className={style.wrapper}>
         <GameCanvas
           ws={ws}
