@@ -22,6 +22,7 @@ let previousDrawers = [];
 const maxRoundTime = 60;
 let currentRoundTime;
 let roundTimerInterval;
+let roundIntermission = false;
 
 const sendMessageToPlayers = (type, data, excludeCurrentDrawer = false) => {
   joinedPlayers.forEach((player) => {
@@ -136,7 +137,8 @@ const sendChatMessageToPlayers = (text, sender, className) => {
 const handleChatMessage = (sender, text) => {
   if (
     sender.ws !== currentDrawer.ws &&
-    text.toLowerCase() === currentWord.toLowerCase()
+    text.toLowerCase() === currentWord.toLowerCase() &&
+    !roundIntermission
   ) {
     handleCorrectGuess(sender.name);
   } else {
@@ -144,7 +146,10 @@ const handleChatMessage = (sender, text) => {
   }
 };
 
-const startNewRound = (sendDrawerUpdateMessage = true) => {
+const startNewRound = async (
+  intermissionTimer = true,
+  sendDrawerUpdateMessage = true
+) => {
   if (joinedPlayers.length == 0) {
     currentDrawer = null;
     currentWord = null;
@@ -152,6 +157,13 @@ const startNewRound = (sendDrawerUpdateMessage = true) => {
     usedWords = [];
     return;
   }
+
+  if (intermissionTimer) {
+    roundIntermission = true;
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    roundIntermission = false;
+  }
+
   let previousWord;
   if (currentWord) {
     previousWord = currentWord;
@@ -185,7 +197,9 @@ const startNewRound = (sendDrawerUpdateMessage = true) => {
 };
 
 const decrementRoundTimer = () => {
-  currentRoundTime--;
+  if (!roundIntermission) {
+    currentRoundTime--;
+  }
   if (currentRoundTime < 1) {
     clearInterval(roundTimerInterval);
     console.log("Nobody managed to guess the word. Starting a new round.");
@@ -213,7 +227,7 @@ server.on("connection", (ws) => {
   if (currentDrawer) {
     sendMessageToPlayer(player, "drawerInfoUpdate", getDrawerInfoMessage());
   } else {
-    startNewRound();
+    startNewRound(false);
   }
   if (lineHistory.length > 0) {
     sendMessageToPlayer(player, "lineHistoryWithRedraw", lineHistory);
@@ -252,7 +266,7 @@ server.on("connection", (ws) => {
     });
     if (player.ws === currentDrawer.ws) {
       console.log("The drawer has left. Starting a new round.");
-      startNewRound(false);
+      startNewRound(true, false);
       if (currentDrawer) {
         leaveMessage += ` They were the drawer, so ${currentDrawer.name} was selected as the new drawer.`;
         leaveMessageColor = "blue";
