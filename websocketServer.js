@@ -209,9 +209,8 @@ const decrementRoundTimer = () => {
       "red"
     );
     startNewRound();
-  } else {
-    sendMessageToPlayers("roundTimeUpdate", currentRoundTime);
   }
+  sendMessageToPlayers("roundTimeUpdate", currentRoundTime);
 };
 
 const getRandomNumber = (max) => {
