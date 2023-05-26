@@ -60,7 +60,7 @@ const selectNewWord = (previousWord = null) => {
   console.log(`"${currentWord}" was chosen as the word.`);
 };
 
-const selectNewDrawer = (sendUpdateMessage) => {
+const selectNewDrawer = () => {
   let newDrawerSelected = false;
   for (const joinedPlayer of joinedPlayers) {
     if (!previousDrawers.includes(joinedPlayer)) {
@@ -74,13 +74,11 @@ const selectNewDrawer = (sendUpdateMessage) => {
     currentDrawer = joinedPlayers[0];
   }
   console.log(`${currentDrawer.name} was chosen as the drawer.`);
-  if (sendUpdateMessage) {
-    sendChatMessageToPlayers(
-      `${currentDrawer.name} is now the drawer.`,
-      null,
-      "blue"
-    );
-  }
+  sendChatMessageToPlayers(
+    `${currentDrawer.name} is now the drawer.`,
+    null,
+    "blue"
+  );
 };
 
 const handleNewLineData = (sender, lineData) => {
@@ -146,10 +144,7 @@ const handleChatMessage = (sender, text) => {
   }
 };
 
-const startNewRound = async (
-  intermissionTimer = true,
-  sendDrawerUpdateMessage = true
-) => {
+const startNewRound = async (intermissionTimer = true) => {
   if (joinedPlayers.length == 0) {
     currentDrawer = null;
     currentWord = null;
@@ -174,7 +169,7 @@ const startNewRound = async (
     previousDrawers.push(previousDrawer);
     sendMessageToPlayer(previousDrawer, "drawerStatusChange", false);
   }
-  selectNewDrawer(sendDrawerUpdateMessage);
+  selectNewDrawer();
   selectNewWord(previousWord);
   sendMessageToPlayer(currentDrawer, "drawerStatusChange", true);
   sendMessageToPlayer(
@@ -265,9 +260,9 @@ server.on("connection", (ws) => {
     });
     if (player.ws === currentDrawer.ws) {
       console.log("The drawer has left. Starting a new round.");
-      startNewRound(true, false);
+      startNewRound();
       if (currentDrawer) {
-        leaveMessage += ` They were the drawer, so ${currentDrawer.name} was selected as the new drawer.`;
+        leaveMessage += ` They were the drawer, so a new round will be started.`;
         leaveMessageColor = "blue";
       }
     }
