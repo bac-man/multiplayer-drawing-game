@@ -7,6 +7,7 @@
   padding: 0.5rem;
   background-color: rgb(140, 140, 140);
   aspect-ratio: 3 / 1;
+  z-index: 1;
   @include landscape-or-desktop() {
     flex: 0 1 25%;
     align-self: stretch;

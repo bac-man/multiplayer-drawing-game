@@ -33,6 +33,11 @@ const GameContainer = ({ ws }) => {
 
   return (
     <div className={style.container}>
+      <div
+        className={`${style.drawingModeGradient} ${
+          drawingAllowed ? "" : style.hidden
+        }`}
+      />
       <RoundInfo ws={ws} />
       <div className={style.wrapper}>
         <GameCanvas
