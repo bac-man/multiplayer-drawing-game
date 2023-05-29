@@ -258,7 +258,7 @@ server.on("connection", (ws) => {
         joinedPlayers.splice(index, 1);
       }
     });
-    if (player.ws === currentDrawer.ws) {
+    if (player.ws === currentDrawer.ws && !roundIntermission) {
       console.log("The drawer has left. Starting a new round.");
       startNewRound();
       if (currentDrawer) {
