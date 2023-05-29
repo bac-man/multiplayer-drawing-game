@@ -1,37 +1,42 @@
 @import "../style/mixins.scss";
+@import "../style/variables.scss";
 
 .chatbox {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  background-color: rgb(140, 140, 140);
+  padding: $spacing;
+  gap: $spacing;
+  background-color: $dark-gray;
   aspect-ratio: 3 / 1;
   z-index: 1;
   @include landscape-or-desktop() {
     flex: 0 1 25%;
     align-self: stretch;
     aspect-ratio: unset;
-    padding: 1rem;
+    border-top-right-radius: $border-radius;
   }
   .inputWrapper {
     display: flex;
-    gap: 0.5rem;
+    gap: $spacing;
     flex: 1 1 0;
     input {
       width: 100%;
       height: 100%;
-      font-size: 1rem;
+      border-radius: $border-radius;
+      padding: 0.5rem;
     }
     button {
       flex-basis: 20%;
+      border-radius: $border-radius;
     }
   }
 
   .messageHistory {
     position: relative;
     flex: 1 1 70%;
-    background-color: rgb(190, 190, 190);
+    background-color: $light-gray;
+    border-radius: $border-radius;
+    overflow: hidden;
     @include landscape-or-desktop() {
       flex-basis: 85%;
     }
@@ -40,19 +45,20 @@
       height: 100%;
       width: 100%;
       overflow-y: scroll;
+      padding: $small-spacing;
       .message {
         span {
           &.red {
-            color: rgb(120, 20, 0);
+            color: rgb(220, 40, 0);
           }
           &.green {
-            color: rgb(50, 170, 80);
+            color: rgb(20, 230, 70);
           }
           &.blue {
-            color: rgb(0, 85, 150);
+            color: rgb(0, 195, 255);
           }
           &.gray {
-            color: rgb(80, 80, 80);
+            color: rgb(170, 170, 170);
           }
         }
       }
@@ -64,8 +70,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.25rem;
-      background-color: rgba(40, 40, 40, 0.85);
+      padding: $small-spacing;
+      background-color: rgba(40, 40, 40, 0.6);
       color: rgb(255, 255, 255);
       cursor: pointer;
       z-index: 1;

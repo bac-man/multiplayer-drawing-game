@@ -1,7 +1,24 @@
+@import "../style/mixins.scss";
+@import "../style/variables.scss";
+
 .brushOptions {
   position: relative;
-  padding: 0.5rem;
-  background-color: rgb(85, 85, 85);
+  display: flex;
+  gap: $spacing;
+  padding: 0 $spacing $spacing $spacing;
+  background-color: $dark-gray;
+  border-bottom-left-radius: $border-radius;
+  border-bottom-right-radius: $border-radius;
+  @include landscape-or-desktop() {
+    padding: $spacing;
+  }
+  button {
+    border-radius: $border-radius;
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
   .options {
     position: absolute;
     left: 0;
@@ -9,15 +26,15 @@
     width: 100%;
     display: flex;
     gap: 1rem;
-    padding: 0.5rem;
-    background-color: rgb(85, 85, 85);
+    padding: $spacing;
+    background-color: $dark-gray;
     transform: translateY(-100%);
     z-index: 2;
     .field {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 0.5rem;
+      gap: $small-spacing;
     }
   }
 }
