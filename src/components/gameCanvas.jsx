@@ -4,7 +4,6 @@ import style from "./gameCanvas.module.scss";
 const GameCanvas = ({ ws, brushStyle, drawingAllowed }) => {
   const baselineWidth = 1280;
   const canvasRef = useRef();
-  const wrapperRef = useRef();
   const [lineStarted, setLineStarted] = useState(false);
   const [currentLinePoints, setCurrentLinePoints] = useState([]);
   const redrawThrottling = useRef(false);
@@ -123,7 +122,7 @@ const GameCanvas = ({ ws, brushStyle, drawingAllowed }) => {
   };
 
   return (
-    <div ref={wrapperRef} className={style.wrapper}>
+    <div className={style.wrapper}>
       <canvas
         ref={canvasRef}
         className={`${style.canvas} ${
