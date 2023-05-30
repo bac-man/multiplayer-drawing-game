@@ -23,6 +23,13 @@ const GameCanvas = ({ ws, brushStyle, drawingAllowed }) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!drawingAllowed && lineStarted) {
+      endLine(false);
+      redraw();
+    }
+  }, [drawingAllowed]);
+
   const messageHandler = (message) => {
     const parsedData = JSON.parse(message.data);
     switch (parsedData.type) {
@@ -97,15 +104,17 @@ const GameCanvas = ({ ws, brushStyle, drawingAllowed }) => {
     setLineStarted(true);
   };
 
-  const endLine = () => {
+  const endLine = (sendData = true) => {
     setLineStarted(false);
     setCurrentLinePoints([]);
-    ws.send(
-      JSON.stringify({
-        type: "newLineData",
-        data: currentLinePoints,
-      })
-    );
+    if (sendData) {
+      ws.send(
+        JSON.stringify({
+          type: "newLineData",
+          data: currentLinePoints,
+        })
+      );
+    }
   };
 
   const drawFullLine = (linePoints) => {
@@ -131,7 +140,9 @@ const GameCanvas = ({ ws, brushStyle, drawingAllowed }) => {
         onMouseDown={(e) => {
           startDrawingLine(e);
         }}
-        onMouseUp={endLine}
+        onMouseUp={() => {
+          endLine();
+        }}
         onMouseMove={(e) => {
           if (lineStarted) {
             drawCurrentLinePoint(e);
