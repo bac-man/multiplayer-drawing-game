@@ -19,8 +19,8 @@ let nextPlayerNumber = 1;
 let currentWord;
 let usedWords = [];
 let previousDrawers = [];
-const maxRoundTime = 60;
-let currentRoundTime;
+const roundDuration = 60;
+let roundTimeLeft;
 let roundTimerInterval;
 let roundIntermission = false;
 
@@ -186,16 +186,16 @@ const startNewRound = async (intermissionTimer = true) => {
   if (roundTimerInterval) {
     clearInterval(roundTimerInterval);
   }
-  currentRoundTime = maxRoundTime;
-  sendMessageToPlayers("roundTimeUpdate", currentRoundTime);
+  roundTimeLeft = roundDuration;
+  sendMessageToPlayers("roundTimeUpdate", roundTimeLeft);
   roundTimerInterval = setInterval(decrementRoundTimer, 1000);
 };
 
 const decrementRoundTimer = () => {
   if (!roundIntermission) {
-    currentRoundTime--;
+    roundTimeLeft--;
   }
-  if (currentRoundTime < 1) {
+  if (roundTimeLeft < 1) {
     clearInterval(roundTimerInterval);
     console.log("Nobody managed to guess the word. Starting a new round.");
     sendChatMessageToPlayers(
@@ -205,7 +205,7 @@ const decrementRoundTimer = () => {
     );
     startNewRound();
   }
-  sendMessageToPlayers("roundTimeUpdate", currentRoundTime);
+  sendMessageToPlayers("roundTimeUpdate", roundTimeLeft);
 };
 
 const getRandomNumber = (max) => {
@@ -229,7 +229,7 @@ server.on("connection", (ws) => {
   if (chatHistory.length > 0) {
     sendMessageToPlayer(player, "chatHistory", chatHistory);
   }
-  sendMessageToPlayer(player, "roundTimeUpdate", currentRoundTime);
+  sendMessageToPlayer(player, "roundTimeUpdate", roundTimeLeft);
   ws.on("message", (data) => {
     let parsedData;
     try {
