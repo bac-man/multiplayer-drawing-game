@@ -145,6 +145,9 @@ const GameCanvas = ({ ws, brushStyle, drawingAllowed }) => {
           e.preventDefault();
           endLine();
         }}
+        onMouseLeave={(e) => {
+          endLine();
+        }}
         onTouchMove={(e) => {
           if (lineStarted) {
             drawCurrentLinePoint(getTouchEventCoordinates(e));
