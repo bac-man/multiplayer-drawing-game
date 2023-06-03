@@ -3,6 +3,7 @@ import style from "./brushOptions.module.scss";
 
 const BrushOptions = ({
   ws,
+  isHidden,
   brushStyle,
   setBrushStyle,
   drawingAllowed,
@@ -26,15 +27,31 @@ const BrushOptions = ({
   }, [drawingAllowed]);
 
   return (
-    <div className={style.brushOptions}>
-      <button
-        disabled={!drawingAllowed}
-        onClick={() => {
-          setOptionsVisible(!optionsVisible);
-        }}
-      >
-        {`${optionsVisible ? "Hide" : "Show"} brush options`}
-      </button>
+    <div className={`${style.brushOptions} ${isHidden ? "hidden" : ""}`}>
+      <div className={style.field}>
+        <label htmlFor={"brushColor"}>Brush color</label>
+        <input
+          type={"color"}
+          name={"brushColor"}
+          value={color}
+          onChange={(e) => {
+            setColor(e.target.value);
+          }}
+        />
+      </div>
+      <div className={style.field}>
+        <label htmlFor={"brushSize"}>Brush size</label>
+        <input
+          type={"range"}
+          name={"brushSize"}
+          min={1}
+          max={maxBrushSize}
+          value={size}
+          onChange={(e) => {
+            setSize(e.target.value);
+          }}
+        />
+      </div>
       <button
         disabled={!drawingAllowed}
         onClick={() => {
@@ -43,34 +60,6 @@ const BrushOptions = ({
       >
         Undo
       </button>
-      {optionsVisible && (
-        <div className={style.options}>
-          <div className={style.field}>
-            <label htmlFor={"brushColor"}>Brush color</label>
-            <input
-              type={"color"}
-              name={"brushColor"}
-              value={color}
-              onChange={(e) => {
-                setColor(e.target.value);
-              }}
-            />
-          </div>
-          <div className={style.field}>
-            <label htmlFor={"brushSize"}>Brush size</label>
-            <input
-              type={"range"}
-              name={"brushSize"}
-              min={1}
-              max={maxBrushSize}
-              value={size}
-              onChange={(e) => {
-                setSize(e.target.value);
-              }}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };

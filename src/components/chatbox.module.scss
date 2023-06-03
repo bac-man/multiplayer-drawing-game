@@ -2,23 +2,22 @@
 @import "../style/variables.scss";
 
 .chatbox {
+  flex: 1 1 0;
   display: flex;
   flex-direction: column;
-  padding: $spacing;
-  gap: $spacing;
+  gap: $small-spacing;
   background-color: $dark-gray;
-  aspect-ratio: 3 / 1;
-  z-index: 1;
-  @include landscape-or-desktop() {
-    flex: 0 1 25%;
-    align-self: stretch;
+  @include desktop() {
+    height: 100%;
     aspect-ratio: unset;
+    min-height: unset;
     border-top-right-radius: $border-radius;
     padding-left: 0;
+    gap: $spacing;
   }
   .inputWrapper {
     display: flex;
-    gap: $spacing;
+    gap: $small-spacing;
     flex: 1 1 0;
     input {
       width: 100%;
@@ -38,7 +37,7 @@
     background-color: $light-gray;
     border-radius: $border-radius;
     overflow: hidden;
-    @include landscape-or-desktop() {
+    @include desktop() {
       flex-basis: 85%;
     }
     .messagesWrapper {
@@ -46,7 +45,7 @@
       height: 100%;
       width: 100%;
       overflow-y: scroll;
-      padding: $small-spacing;
+      padding: 0.75rem;
       .message {
         span {
           &.red {
@@ -71,7 +70,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: $small-spacing;
+      padding: 0.5rem 0.75rem;
       background-color: rgba(40, 40, 40, 0.6);
       color: rgb(255, 255, 255);
       cursor: pointer;

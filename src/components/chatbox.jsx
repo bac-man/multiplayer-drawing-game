@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import style from "./chatbox.module.scss";
 
-const Chatbox = ({ ws }) => {
+const Chatbox = ({ ws, isHidden }) => {
   const inputRef = useRef();
   const messagesWrapperRef = useRef();
   const [messages, setMessages] = useState([]);
@@ -57,7 +57,7 @@ const Chatbox = ({ ws }) => {
   };
 
   return (
-    <div className={style.chatbox}>
+    <div className={`${style.chatbox} ${isHidden ? "hidden" : ""}`}>
       <div className={style.messageHistory}>
         {!autoScrolling && (
           <div

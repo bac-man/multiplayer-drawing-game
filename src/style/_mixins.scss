@@ -5,18 +5,3 @@
     @content;
   }
 }
-
-@mixin landscape() {
-  @media screen and (orientation: landscape) {
-    @content;
-  }
-}
-
-@mixin landscape-or-desktop() {
-  @include landscape() {
-    @content;
-  }
-  @include desktop() {
-    @content;
-  }
-}

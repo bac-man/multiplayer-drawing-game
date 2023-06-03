@@ -7,11 +7,8 @@
   padding: 2rem;
   height: 100%;
   background: linear-gradient(0deg, rgb(25, 25, 25) 0%, rgb(10, 60, 150) 80%);
-  @include landscape() {
-    padding: 0 7rem;
-  }
   @include desktop() {
-    padding: 0 12rem;
+    padding: 0 7rem;
   }
   .drawingModeGradient {
     position: absolute;
@@ -30,9 +27,44 @@
   .wrapper {
     display: flex;
     flex-direction: column;
-    @include landscape-or-desktop() {
+    padding: $small-spacing;
+    background-color: $dark-gray;
+    border-radius: $border-radius;
+    z-index: 1;
+    @include desktop() {
       flex-direction: row;
       align-items: center;
+      padding: $spacing;
+    }
+    @include desktop() {
+    }
+  }
+  .tabs {
+    display: flex;
+    flex-direction: column;
+    gap: $small-spacing;
+    padding: $small-spacing 0 0 0;
+    aspect-ratio: 2 / 1;
+    min-height: 13rem;
+    @include desktop() {
+      aspect-ratio: unset;
+      min-height: unset;
+      align-self: stretch;
+      flex: 0 1 25%;
+      padding: 0 0 0 $spacing;
+      gap: $spacing;
+    }
+    .tabButtons {
+      display: flex;
+      gap: $small-spacing;
+      button {
+        flex: 1 1 auto;
+        border-radius: $border-radius;
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
     }
   }
 }

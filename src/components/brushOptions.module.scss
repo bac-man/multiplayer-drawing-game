@@ -2,39 +2,18 @@
 @import "../style/variables.scss";
 
 .brushOptions {
-  position: relative;
+  flex: 1 1 0;
   display: flex;
+  flex-direction: column;
   gap: $spacing;
-  padding: 0 $spacing $spacing $spacing;
-  background-color: $dark-gray;
-  border-bottom-left-radius: $border-radius;
-  border-bottom-right-radius: $border-radius;
-  @include landscape-or-desktop() {
-    padding: $spacing;
-  }
-  button {
-    border-radius: $border-radius;
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-  .options {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
+  overflow-y: scroll;
+  .field {
     display: flex;
-    gap: 1rem;
-    padding: $spacing;
-    background-color: $dark-gray;
-    transform: translateY(-100%);
-    z-index: 2;
-    .field {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: $small-spacing;
+    flex-direction: column;
+    gap: 0.25rem;
+    input {
+      width: 100%;
+      touch-action: none;
     }
   }
 }

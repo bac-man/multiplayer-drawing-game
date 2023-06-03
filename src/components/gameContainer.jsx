@@ -14,8 +14,8 @@ const GameContainer = ({ ws }) => {
     lineCap: "round",
     strokeStyle: "#000000",
   });
-
   const [drawingAllowed, setDrawingAllowed] = useState(false);
+  const [selectedTab, setSelectedTab] = useState(0);
 
   useEffect(() => {
     ws.addEventListener("message", messageHandler);
@@ -23,6 +23,12 @@ const GameContainer = ({ ws }) => {
       ws.removeEventListener("message", messageHandler);
     };
   }, []);
+
+  useEffect(() => {
+    if (!drawingAllowed) {
+      setSelectedTab(0);
+    }
+  }, [drawingAllowed]);
 
   const messageHandler = (message) => {
     const parsedData = JSON.parse(message.data);
@@ -45,15 +51,35 @@ const GameContainer = ({ ws }) => {
           brushStyle={brushStyle}
           drawingAllowed={drawingAllowed}
         />
-        <Chatbox ws={ws} />
+        <div className={style.tabs}>
+          <div className={style.tabButtons}>
+            <button
+              onClick={() => {
+                setSelectedTab(0);
+              }}
+            >
+              Chat
+            </button>
+            <button
+              onClick={() => {
+                setSelectedTab(1);
+              }}
+              disabled={!drawingAllowed}
+            >
+              Drawing
+            </button>
+          </div>
+          <Chatbox ws={ws} isHidden={selectedTab !== 0} />
+          <BrushOptions
+            ws={ws}
+            isHidden={selectedTab !== 1}
+            brushStyle={brushStyle}
+            setBrushStyle={setBrushStyle}
+            drawingAllowed={drawingAllowed}
+            maxBrushSize={maxBrushSize}
+          />
+        </div>
       </div>
-      <BrushOptions
-        ws={ws}
-        brushStyle={brushStyle}
-        setBrushStyle={setBrushStyle}
-        drawingAllowed={drawingAllowed}
-        maxBrushSize={maxBrushSize}
-      />
     </div>
   );
 };
