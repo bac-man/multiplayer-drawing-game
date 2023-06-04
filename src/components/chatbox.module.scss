@@ -46,6 +46,7 @@
       width: 100%;
       overflow-y: scroll;
       padding: 0.75rem;
+      scroll-behavior: smooth;
       .message {
         span {
           &.red {
