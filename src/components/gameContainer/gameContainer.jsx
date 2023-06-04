@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import Chatbox from "./chatbox";
-import RoundInfo from "./roundInfo";
-import GameCanvas from "./gameCanvas";
-import BrushOptions from "./brushOptions";
+import Chatbox from "../chatbox/chatbox";
+import RoundInfo from "../roundInfo/roundInfo";
+import GameCanvas from "../gameCanvas/gameCanvas";
+import BrushOptions from "../brushOptions/brushOptions";
 import style from "./gameContainer.module.scss";
 
 const GameContainer = ({ ws }) => {
