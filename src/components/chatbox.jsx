@@ -7,6 +7,18 @@ const Chatbox = ({ ws, isHidden }) => {
   const [messages, setMessages] = useState([]);
   const messagesRef = useRef(messages);
   const [autoScrolling, setAutoScrolling] = useState(true);
+  const autoScrollUpdateThrottling = useRef(false);
+
+  const resizeObserver = new ResizeObserver(() => {
+    updateAutoScrollStatus();
+  });
+
+  useEffect(() => {
+    resizeObserver.observe(messagesWrapperRef.current);
+    return () => {
+      resizeObserver.unobserve(messagesWrapperRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     const messageList = messagesWrapperRef.current;
@@ -18,6 +30,26 @@ const Chatbox = ({ ws, isHidden }) => {
       ws.removeEventListener("message", messageHandler);
     };
   }, [messages]);
+
+  const updateAutoScrollStatus = () => {
+    if (!autoScrollUpdateThrottling.current) {
+      autoScrollUpdateThrottling.current = true;
+      setTimeout(() => {
+        const messagesWrapper = messagesWrapperRef.current;
+        if (
+          messagesWrapper.scrollHeight -
+            messagesWrapper.clientHeight -
+            messagesWrapper.scrollTop <=
+          20
+        ) {
+          setAutoScrolling(true);
+        } else {
+          setAutoScrolling(false);
+        }
+        autoScrollUpdateThrottling.current = false;
+      }, 250);
+    }
+  };
 
   const sendMessage = () => {
     const message = inputRef.current.value.trim();
@@ -74,17 +106,8 @@ const Chatbox = ({ ws, isHidden }) => {
         <div
           ref={messagesWrapperRef}
           className={style.messagesWrapper}
-          onScroll={(e) => {
-            if (
-              e.target.scrollHeight -
-                e.target.clientHeight -
-                e.target.scrollTop <=
-              20
-            ) {
-              setAutoScrolling(true);
-            } else {
-              setAutoScrolling(false);
-            }
+          onScroll={() => {
+            updateAutoScrollStatus();
           }}
         >
           {messages.map((message, index) => {
