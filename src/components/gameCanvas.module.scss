@@ -7,7 +7,7 @@
   border-top-left-radius: $border-radius;
   border-top-right-radius: $border-radius;
   background-color: $dark-gray;
-  @include desktop() {
+  @include desktop-or-landscape() {
     flex: 1 0 auto;
     border-top-right-radius: 0;
   }

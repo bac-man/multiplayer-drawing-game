@@ -7,7 +7,7 @@
   flex-direction: column;
   gap: $small-spacing;
   background-color: $dark-gray;
-  @include desktop() {
+  @include desktop-or-landscape() {
     height: 100%;
     aspect-ratio: unset;
     min-height: unset;
@@ -37,7 +37,7 @@
     background-color: $light-gray;
     border-radius: $border-radius;
     overflow: hidden;
-    @include desktop() {
+    @include desktop-or-landscape() {
       flex-basis: 85%;
     }
     .messagesWrapper {
