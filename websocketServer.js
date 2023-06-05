@@ -133,6 +133,11 @@ const sendChatMessageToPlayers = (text, sender, className) => {
 };
 
 const handleChatMessage = (sender, text) => {
+  // If the max length is changed here, it should also be changed
+  // in chatbox.jsx accordingly
+  if (text.length > 50) {
+    return;
+  }
   if (
     sender.ws !== currentDrawer.ws &&
     text.toLowerCase() === currentWord.toLowerCase() &&

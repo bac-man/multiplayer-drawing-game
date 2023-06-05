@@ -124,6 +124,9 @@ const Chatbox = ({ ws, isHidden }) => {
         <input
           ref={inputRef}
           type={"text"}
+          // If the max length is changed here, it should also be changed
+          // in websocketServer.js accordingly
+          maxLength={50}
           onKeyDown={(e) => {
             if (e.key == "Enter") {
               sendMessage();
