@@ -1,6 +1,9 @@
 @import "../../style/mixins.scss";
 
 .container {
+  position: fixed;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;

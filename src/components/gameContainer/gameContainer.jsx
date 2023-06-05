@@ -52,6 +52,15 @@ const GameContainer = ({ ws }) => {
           drawingAllowed={drawingAllowed}
         />
         <div className={style.tabs}>
+          <Chatbox ws={ws} isHidden={selectedTab !== 0} />
+          <BrushOptions
+            ws={ws}
+            isHidden={selectedTab !== 1}
+            brushStyle={brushStyle}
+            setBrushStyle={setBrushStyle}
+            drawingAllowed={drawingAllowed}
+            maxBrushSize={maxBrushSize}
+          />
           <div className={style.tabButtons}>
             <button
               onClick={() => {
@@ -69,15 +78,6 @@ const GameContainer = ({ ws }) => {
               Drawing
             </button>
           </div>
-          <Chatbox ws={ws} isHidden={selectedTab !== 0} />
-          <BrushOptions
-            ws={ws}
-            isHidden={selectedTab !== 1}
-            brushStyle={brushStyle}
-            setBrushStyle={setBrushStyle}
-            drawingAllowed={drawingAllowed}
-            maxBrushSize={maxBrushSize}
-          />
         </div>
       </div>
     </div>
