@@ -82,6 +82,7 @@ const GameContainer = ({ ws }) => {
               onClick={() => {
                 setSelectedTab(0);
               }}
+              className={`${selectedTab === 0 ? style.selected : ""}`}
             >
               Chat
             </button>
@@ -89,6 +90,7 @@ const GameContainer = ({ ws }) => {
               onClick={() => {
                 setSelectedTab(1);
               }}
+              className={`${selectedTab === 1 ? style.selected : ""}`}
               disabled={!drawingAllowed}
             >
               Drawing tools
