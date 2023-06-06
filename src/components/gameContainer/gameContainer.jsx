@@ -91,7 +91,7 @@ const GameContainer = ({ ws }) => {
               }}
               disabled={!drawingAllowed}
             >
-              Drawing
+              Drawing tools
             </button>
           </div>
         </div>
