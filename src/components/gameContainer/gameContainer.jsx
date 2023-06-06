@@ -16,6 +16,8 @@ const GameContainer = ({ ws }) => {
   });
   const [drawingAllowed, setDrawingAllowed] = useState(false);
   const [selectedTab, setSelectedTab] = useState(0);
+  const [roundEndGradientColor, setRoundEndGradientColor] = useState("");
+  const [roundEndGradientVisible, setRoundEndGradientVisible] = useState(false);
 
   useEffect(() => {
     ws.addEventListener("message", messageHandler);
@@ -32,8 +34,17 @@ const GameContainer = ({ ws }) => {
 
   const messageHandler = (message) => {
     const parsedData = JSON.parse(message.data);
-    if (parsedData.type === "drawerStatusChange") {
-      setDrawingAllowed(parsedData.data);
+    switch (parsedData.type) {
+      case "drawerStatusChange":
+        setDrawingAllowed(parsedData.data);
+        break;
+      case "roundStart":
+        setRoundEndGradientVisible(false);
+        break;
+      case "roundEnd":
+        setRoundEndGradientColor(parsedData.data);
+        setRoundEndGradientVisible(true);
+        break;
     }
   };
 
@@ -42,6 +53,11 @@ const GameContainer = ({ ws }) => {
       <div
         className={`${style.drawingModeGradient} ${
           drawingAllowed ? "" : style.hidden
+        }`}
+      />
+      <div
+        className={`${style.roundEndGradient} ${style[roundEndGradientColor]} ${
+          roundEndGradientVisible ? "" : style.hidden
         }`}
       />
       <RoundInfo ws={ws} />

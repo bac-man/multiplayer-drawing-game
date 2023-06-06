@@ -115,6 +115,7 @@ const handleCorrectGuess = (guesser) => {
     null,
     "green"
   );
+  sendMessageToPlayers("roundEnd", "green");
   startNewRound();
 };
 
@@ -194,6 +195,7 @@ const startNewRound = async (intermissionTimer = true) => {
   roundTimeLeft = roundDuration;
   sendMessageToPlayers("roundTimeUpdate", roundTimeLeft);
   roundTimerInterval = setInterval(decrementRoundTimer, 1000);
+  sendMessageToPlayers("roundStart", null);
 };
 
 const decrementRoundTimer = () => {
@@ -208,6 +210,7 @@ const decrementRoundTimer = () => {
       null,
       "red"
     );
+    sendMessageToPlayers("roundEnd", "red");
     startNewRound();
   }
   sendMessageToPlayers("roundTimeUpdate", roundTimeLeft);
