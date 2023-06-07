@@ -87,4 +87,27 @@
       }
     }
   }
+  .connectionInfoMessage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 2;
+    opacity: 1;
+    transition: opacity 500ms;
+    &.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    span {
+      text-align: center;
+      font-size: 2rem;
+      color: rgb(255, 255, 255);
+    }
+  }
 }

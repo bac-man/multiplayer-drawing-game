@@ -14,14 +14,22 @@ const GameContainer = ({ ws }) => {
     lineCap: "round",
     strokeStyle: "#000000",
   });
+
+  const [connectionInfoMessage, setConnectionInfoMessage] = useState(
+    "Connecting to the game server..."
+  );
   const [drawingAllowed, setDrawingAllowed] = useState(false);
   const [selectedTab, setSelectedTab] = useState(0);
   const [roundEndGradientColor, setRoundEndGradientColor] = useState("");
   const [roundEndGradientVisible, setRoundEndGradientVisible] = useState(false);
 
   useEffect(() => {
+    ws.addEventListener("error", errorHandler);
+    ws.addEventListener("open", openHandler);
     ws.addEventListener("message", messageHandler);
     return () => {
+      ws.removeEventListener("error", errorHandler);
+      ws.removeEventListener("open", openHandler);
       ws.removeEventListener("message", messageHandler);
     };
   }, []);
@@ -31,6 +39,16 @@ const GameContainer = ({ ws }) => {
       setSelectedTab(0);
     }
   }, [drawingAllowed]);
+
+  const errorHandler = () => {
+    setConnectionInfoMessage(
+      "Unable to connect to the game server. Please try again later."
+    );
+  };
+
+  const openHandler = () => {
+    setConnectionInfoMessage("");
+  };
 
   const messageHandler = (message) => {
     const parsedData = JSON.parse(message.data);
@@ -97,6 +115,13 @@ const GameContainer = ({ ws }) => {
             </button>
           </div>
         </div>
+      </div>
+      <div
+        className={`${style.connectionInfoMessage} ${
+          connectionInfoMessage ? "" : style.hidden
+        }`}
+      >
+        <span>{connectionInfoMessage}</span>
       </div>
     </div>
   );
