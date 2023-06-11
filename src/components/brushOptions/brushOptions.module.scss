@@ -5,15 +5,27 @@
   flex: 1 1 0;
   display: flex;
   flex-direction: column;
-  gap: $spacing;
+  justify-content: space-between;
   overflow-y: scroll;
+  @include landscape() {
+    justify-content: space-around;
+  }
+  @include desktop() {
+    justify-content: flex-start;
+    gap: $spacing;
+  }
   button {
     border-radius: $border-radius;
   }
   .field {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 0.25rem;
+    label {
+      @include desktop-or-landscape() {
+        flex: 0 0 50%;
+      }
+    }
     input {
       width: 100%;
       touch-action: none;
