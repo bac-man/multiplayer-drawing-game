@@ -49,6 +49,7 @@
     flex-direction: column;
     padding: $small-spacing;
     background-color: $dark-gray;
+    box-shadow: 0.5rem 0.5rem 2rem rgba(0, 0, 0, 0.75);
     border-radius: $border-radius;
     z-index: 1;
     @include desktop-or-landscape() {
