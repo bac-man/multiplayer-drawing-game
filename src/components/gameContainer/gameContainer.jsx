@@ -67,7 +67,7 @@ const GameContainer = ({ ws }) => {
   };
 
   return (
-    <div className={style.container}>
+    <div className={style.gameContainer}>
       <div
         className={`${style.drawingModeGradient} ${
           drawingAllowed ? "" : style.hidden
@@ -79,7 +79,7 @@ const GameContainer = ({ ws }) => {
         }`}
       />
       <RoundInfo ws={ws} />
-      <div className={style.wrapper}>
+      <div className={style.controls}>
         <GameCanvas
           ws={ws}
           brushStyle={brushStyle}
