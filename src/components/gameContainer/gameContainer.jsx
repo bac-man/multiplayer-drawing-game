@@ -24,13 +24,13 @@ const GameContainer = ({ ws }) => {
   const [roundEndGradientVisible, setRoundEndGradientVisible] = useState(false);
 
   useEffect(() => {
-    ws.addEventListener("error", errorHandler);
-    ws.addEventListener("open", openHandler);
-    ws.addEventListener("message", messageHandler);
+    ws.addEventListener("error", handleError);
+    ws.addEventListener("open", handleOpen);
+    ws.addEventListener("message", handleMessage);
     return () => {
-      ws.removeEventListener("error", errorHandler);
-      ws.removeEventListener("open", openHandler);
-      ws.removeEventListener("message", messageHandler);
+      ws.removeEventListener("error", handleError);
+      ws.removeEventListener("open", handleOpen);
+      ws.removeEventListener("message", handleMessage);
     };
   }, []);
 
@@ -40,17 +40,17 @@ const GameContainer = ({ ws }) => {
     }
   }, [drawingAllowed]);
 
-  const errorHandler = () => {
+  const handleError = () => {
     setConnectionInfoMessage(
       "Unable to connect to the game server. Please try again later."
     );
   };
 
-  const openHandler = () => {
+  const handleOpen = () => {
     setConnectionInfoMessage("");
   };
 
-  const messageHandler = (message) => {
+  const handleMessage = (message) => {
     const parsedData = JSON.parse(message.data);
     switch (parsedData.type) {
       case "drawerStatusChange":

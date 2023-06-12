@@ -25,9 +25,9 @@ const Chatbox = ({ ws, isHidden }) => {
     if (autoScrolling) {
       messageList.scrollTop = messageList.scrollHeight;
     }
-    ws.addEventListener("message", messageHandler);
+    ws.addEventListener("message", handleMessage);
     return () => {
-      ws.removeEventListener("message", messageHandler);
+      ws.removeEventListener("message", handleMessage);
     };
   }, [messages]);
 
@@ -70,7 +70,7 @@ const Chatbox = ({ ws, isHidden }) => {
     setMessages([...messagesRef.current]);
   };
 
-  const messageHandler = (message) => {
+  const handleMessage = (message) => {
     const parsedData = JSON.parse(message.data);
     switch (parsedData.type) {
       case "chatMessage":
