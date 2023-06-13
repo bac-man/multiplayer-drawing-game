@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import style from "./brushOptions.module.scss";
 
 const BrushOptions = ({
-  ws,
   isHidden,
   brushStyle,
   setBrushStyle,
   drawingAllowed,
   maxBrushSize,
+  undoLine,
 }) => {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [color, setColor] = useState(brushStyle.strokeStyle);
@@ -52,12 +52,7 @@ const BrushOptions = ({
           }}
         />
       </div>
-      <button
-        disabled={!drawingAllowed}
-        onClick={() => {
-          ws.send(JSON.stringify({ type: "undoLine" }));
-        }}
-      >
+      <button disabled={!drawingAllowed} onClick={undoLine}>
         Undo
       </button>
     </div>

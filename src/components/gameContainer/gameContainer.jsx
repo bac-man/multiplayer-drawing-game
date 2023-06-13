@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import Chatbox from "../chatbox/chatbox";
 import RoundInfo from "../roundInfo/roundInfo";
 import GameCanvas from "../gameCanvas/gameCanvas";
 import BrushOptions from "../brushOptions/brushOptions";
 import style from "./gameContainer.module.scss";
 
-const GameContainer = ({ ws }) => {
+const GameContainer = () => {
   // If the max size is changed here, it should also be changed
   // in webSocketServer.js accordingly
   const maxBrushSize = 100;
@@ -22,8 +22,17 @@ const GameContainer = ({ ws }) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [roundEndGradientColor, setRoundEndGradientColor] = useState("");
   const [roundEndGradientVisible, setRoundEndGradientVisible] = useState(false);
+  const [drawerInfo, setDrawerInfo] = useState("");
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [messages, setMessages] = useState([]);
+  const messagesRef = useRef([]);
+  const lineHistoryRef = useRef([]);
+  const wsRef = useRef();
+  const canvasRef = useRef();
 
   useEffect(() => {
+    wsRef.current = new WebSocket("ws://192.168.0.104:3001");
+    const ws = wsRef.current;
     ws.addEventListener("error", handleError);
     ws.addEventListener("open", handleOpen);
     ws.addEventListener("message", handleMessage);
@@ -53,17 +62,81 @@ const GameContainer = ({ ws }) => {
   const handleMessage = (message) => {
     const parsedData = JSON.parse(message.data);
     switch (parsedData.type) {
+      case "chatHistory":
+        messagesRef.current = parsedData.data;
+        setMessages(parsedData.data);
+        break;
+      case "chatMessage":
+        const messageData = parsedData.data;
+        addNewChatMessage(
+          messageData.text,
+          messageData.sender,
+          messageData.className
+        );
+        break;
+      case "drawerInfoUpdate":
+        setDrawerInfo(parsedData.data);
+        break;
       case "drawerStatusChange":
         setDrawingAllowed(parsedData.data);
         break;
-      case "roundStart":
-        setRoundEndGradientVisible(false);
+      case "lineHistory":
+        lineHistoryRef.current = parsedData.data;
+        break;
+      case "lineHistoryWithRedraw":
+        lineHistoryRef.current = parsedData.data;
+        canvasRef.current.dispatchEvent(new CustomEvent("redraw"));
+        break;
+      case "newLineData":
+        canvasRef.current.dispatchEvent(
+          new CustomEvent("newLine", { detail: parsedData.data })
+        );
         break;
       case "roundEnd":
         setRoundEndGradientColor(parsedData.data);
         setRoundEndGradientVisible(true);
         break;
+      case "roundStart":
+        setRoundEndGradientVisible(false);
+        break;
+      case "roundTimeUpdate":
+        setTimeLeft(parsedData.data);
+        break;
     }
+  };
+
+  const sendNewLineData = (linePoints) => {
+    wsRef.current.send(
+      JSON.stringify({
+        type: "newLineData",
+        data: linePoints,
+      })
+    );
+  };
+
+  const undoLine = () => {
+    wsRef.current.send(JSON.stringify({ type: "undoLine" }));
+  };
+
+  const sendChatMessage = (inputElement) => {
+    const message = inputElement.value.trim();
+    if (message) {
+      wsRef.current.send(
+        JSON.stringify({ type: "chatMessage", data: message })
+      );
+    }
+    inputElement.value = "";
+  };
+
+  const addNewChatMessage = (text, sender, className) => {
+    // Update the messages state via ref to avoid missing messages when multiple
+    // are received in a short timespan (state updates are not synchronous/instant)
+    messagesRef.current.push({
+      sender: sender,
+      text: text,
+      className: className,
+    });
+    setMessages([...messagesRef.current]);
   };
 
   return (
@@ -78,22 +151,28 @@ const GameContainer = ({ ws }) => {
           roundEndGradientVisible ? "" : style.hidden
         }`}
       />
-      <RoundInfo ws={ws} />
+      <RoundInfo drawerInfo={drawerInfo} timeLeft={timeLeft} />
       <div className={style.controls}>
         <GameCanvas
-          ws={ws}
+          canvasRef={canvasRef}
           brushStyle={brushStyle}
           drawingAllowed={drawingAllowed}
+          sendNewLineData={sendNewLineData}
+          lineHistoryRef={lineHistoryRef}
         />
         <div className={style.tabs}>
-          <Chatbox ws={ws} isHidden={selectedTab !== 0} />
+          <Chatbox
+            messages={messages}
+            sendChatMessage={sendChatMessage}
+            isHidden={selectedTab !== 0}
+          />
           <BrushOptions
-            ws={ws}
             isHidden={selectedTab !== 1}
             brushStyle={brushStyle}
             setBrushStyle={setBrushStyle}
             drawingAllowed={drawingAllowed}
             maxBrushSize={maxBrushSize}
+            undoLine={undoLine}
           />
           <div className={style.tabButtons}>
             <button

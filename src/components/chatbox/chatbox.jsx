@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import style from "./chatbox.module.scss";
 
-const Chatbox = ({ ws, isHidden }) => {
+const Chatbox = ({ messages, sendChatMessage, isHidden }) => {
   const inputRef = useRef();
   const messagesWrapperRef = useRef();
-  const [messages, setMessages] = useState([]);
-  const messagesRef = useRef(messages);
   const [autoScrolling, setAutoScrolling] = useState(true);
   const autoScrollUpdateThrottling = useRef(false);
 
@@ -25,10 +23,6 @@ const Chatbox = ({ ws, isHidden }) => {
     if (autoScrolling) {
       messageList.scrollTop = messageList.scrollHeight;
     }
-    ws.addEventListener("message", handleMessage);
-    return () => {
-      ws.removeEventListener("message", handleMessage);
-    };
   }, [messages]);
 
   const updateAutoScrollStatus = () => {
@@ -48,43 +42,6 @@ const Chatbox = ({ ws, isHidden }) => {
         }
         autoScrollUpdateThrottling.current = false;
       }, 250);
-    }
-  };
-
-  const sendMessage = () => {
-    const message = inputRef.current.value.trim();
-    if (message) {
-      ws.send(JSON.stringify({ type: "chatMessage", data: message }));
-    }
-    inputRef.current.value = "";
-  };
-
-  const addNewMessage = (text, sender, className) => {
-    // Update the messages state via ref to avoid missing messages when multiple
-    // are received in a short timespan (state updates are not synchronous/instant)
-    messagesRef.current.push({
-      sender: sender,
-      text: text,
-      className: className,
-    });
-    setMessages([...messagesRef.current]);
-  };
-
-  const handleMessage = (message) => {
-    const parsedData = JSON.parse(message.data);
-    switch (parsedData.type) {
-      case "chatMessage":
-        const messageData = parsedData.data;
-        addNewMessage(
-          messageData.text,
-          messageData.sender,
-          messageData.className
-        );
-        break;
-      case "chatHistory":
-        messagesRef.current = parsedData.data;
-        setMessages(parsedData.data);
-        break;
     }
   };
 
@@ -129,11 +86,17 @@ const Chatbox = ({ ws, isHidden }) => {
           maxLength={50}
           onKeyDown={(e) => {
             if (e.key == "Enter") {
-              sendMessage();
+              sendChatMessage(inputRef.current);
             }
           }}
         />
-        <button onClick={sendMessage}>Send</button>
+        <button
+          onClick={() => {
+            sendChatMessage(inputRef.current);
+          }}
+        >
+          Send
+        </button>
       </div>
     </div>
   );

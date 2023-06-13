@@ -1,25 +1,31 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useImperativeHandle, useRef, useState } from "react";
 import style from "./gameCanvas.module.scss";
 
-const GameCanvas = ({ ws, brushStyle, drawingAllowed }) => {
+const GameCanvas = ({
+  canvasRef,
+  brushStyle,
+  drawingAllowed,
+  sendNewLineData,
+  lineHistoryRef,
+}) => {
   const baselineWidth = 1280;
-  const canvasRef = useRef();
   const [lineStarted, setLineStarted] = useState(false);
   const [currentLinePoints, setCurrentLinePoints] = useState([]);
   const redrawThrottling = useRef(false);
-  const lineHistory = useRef([]);
 
   const resizeObserver = new ResizeObserver(() => {
     updateDimensions();
   });
 
   useEffect(() => {
+    canvasRef.current.addEventListener("redraw", redraw);
+    canvasRef.current.addEventListener("newLine", handleNewLine);
     updateDimensions();
     resizeObserver.observe(canvasRef.current);
-    ws.addEventListener("message", handleMessage);
     return () => {
+      canvasRef.current.removeEventListener("redraw", redraw);
+      canvasRef.current.removeEventListener("newLine", handleNewLine);
       resizeObserver.unobserve(canvasRef.current);
-      ws.removeEventListener("message", handleMessage);
     };
   }, []);
 
@@ -30,20 +36,8 @@ const GameCanvas = ({ ws, brushStyle, drawingAllowed }) => {
     }
   }, [drawingAllowed]);
 
-  const handleMessage = (message) => {
-    const parsedData = JSON.parse(message.data);
-    switch (parsedData.type) {
-      case "newLineData":
-        drawFullLine(parsedData.data);
-        break;
-      case "lineHistoryWithRedraw":
-        lineHistory.current = parsedData.data;
-        redraw();
-        break;
-      case "lineHistory":
-        lineHistory.current = parsedData.data;
-        break;
-    }
+  const handleNewLine = (e) => {
+    drawFullLine(e.detail);
   };
 
   const updateDimensions = () => {
@@ -62,7 +56,7 @@ const GameCanvas = ({ ws, brushStyle, drawingAllowed }) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    lineHistory.current.forEach((line) => {
+    lineHistoryRef.current?.forEach((line) => {
       drawFullLine(line);
     });
   };
@@ -106,15 +100,11 @@ const GameCanvas = ({ ws, brushStyle, drawingAllowed }) => {
 
   const endLine = (sendData = true) => {
     setLineStarted(false);
-    setCurrentLinePoints([]);
+
     if (sendData) {
-      ws.send(
-        JSON.stringify({
-          type: "newLineData",
-          data: currentLinePoints,
-        })
-      );
+      sendNewLineData(currentLinePoints);
     }
+    setCurrentLinePoints([]);
   };
 
   const drawFullLine = (linePoints) => {
@@ -157,7 +147,9 @@ const GameCanvas = ({ ws, brushStyle, drawingAllowed }) => {
           endLine();
         }}
         onMouseLeave={(e) => {
-          endLine();
+          if (lineStarted) {
+            endLine();
+          }
         }}
         onTouchMove={(e) => {
           if (lineStarted) {
@@ -168,5 +160,4 @@ const GameCanvas = ({ ws, brushStyle, drawingAllowed }) => {
     </div>
   );
 };
-
 export default GameCanvas;
