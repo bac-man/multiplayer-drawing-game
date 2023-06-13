@@ -30,19 +30,19 @@ const sendMessageToPlayers = (type, data, excludeCurrentDrawer = false) => {
       !excludeCurrentDrawer ||
       (excludeCurrentDrawer && player.ws !== currentDrawer.ws)
     ) {
-      player.ws.send(JSON.stringify({ type: type, data: data }));
+      player?.ws?.send(JSON.stringify({ type: type, data: data }));
     }
   });
 };
 
 const sendMessageToPlayer = (player, type, data) => {
-  player.ws.send(JSON.stringify({ type: type, data: data }));
+  player?.ws?.send(JSON.stringify({ type: type, data: data }));
 };
 
 const getDrawerInfoMessage = (playerIsDrawer = false) => {
   return playerIsDrawer
     ? `You are the drawer. The word is "${currentWord.toLowerCase()}".`
-    : `${currentDrawer.name} is drawing.`;
+    : `${currentDrawer?.name} is drawing.`;
 };
 
 const selectNewWord = (previousWord = null) => {
@@ -57,7 +57,9 @@ const selectNewWord = (previousWord = null) => {
       newWordSelected = true;
     }
   }
-  console.log(`"${currentWord}" was chosen as the word.`);
+  if (currentWord) {
+    console.log(`"${currentWord}" was chosen as the word.`);
+  }
 };
 
 const selectNewDrawer = () => {
@@ -73,12 +75,14 @@ const selectNewDrawer = () => {
     previousDrawers = [];
     currentDrawer = joinedPlayers[0];
   }
-  console.log(`${currentDrawer.name} was chosen as the drawer.`);
-  sendChatMessageToPlayers(
-    `${currentDrawer.name} is now the drawer.`,
-    null,
-    "blue"
-  );
+  if (currentDrawer) {
+    console.log(`${currentDrawer.name} was chosen as the drawer.`);
+    sendChatMessageToPlayers(
+      `${currentDrawer.name} is now the drawer.`,
+      null,
+      "blue"
+    );
+  }
 };
 
 const handleNewLineData = (sender, lineData) => {
