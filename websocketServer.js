@@ -209,11 +209,13 @@ const decrementRoundTimer = () => {
   if (roundTimeLeft < 1) {
     clearInterval(roundTimerInterval);
     console.log("Nobody managed to guess the word. Starting a new round.");
-    sendChatMessageToPlayers(
-      `Too bad, nobody guessed the word! It was "${currentWord.toLowerCase()}".`,
-      null,
-      "red"
-    );
+    if (currentWord) {
+      sendChatMessageToPlayers(
+        `Too bad, nobody guessed the word! It was "${currentWord.toLowerCase()}".`,
+        null,
+        "red"
+      );
+    }
     sendMessageToPlayers("roundEnd", "red");
     startNewRound();
   }
