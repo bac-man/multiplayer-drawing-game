@@ -128,6 +128,7 @@ const GameCanvas = ({
           drawingAllowed ? null : style.drawingDisabled
         }`}
         onMouseDown={(e) => {
+          document.activeElement.blur();
           startDrawingLine(e);
         }}
         onMouseUp={() => {
@@ -139,6 +140,7 @@ const GameCanvas = ({
           }
         }}
         onTouchStart={(e) => {
+          document.activeElement.blur();
           startDrawingLine(getTouchEventCoordinates(e));
         }}
         onTouchEnd={(e) => {
