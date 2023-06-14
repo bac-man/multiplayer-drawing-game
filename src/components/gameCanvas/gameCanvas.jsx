@@ -1,4 +1,4 @@
-import { useEffect, useImperativeHandle, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import style from "./gameCanvas.module.scss";
 
 const GameCanvas = ({
