@@ -5,7 +5,7 @@ const Chatbox = ({ messages, sendChatMessage, isHidden }) => {
   const inputRef = useRef();
   const messagesWrapperRef = useRef();
   const [autoScrolling, setAutoScrolling] = useState(true);
-  const autoScrollUpdateThrottling = useRef(false);
+  const autoScrollCheckTimeoutRef = useRef();
 
   const resizeObserver = new ResizeObserver(() => {
     updateAutoScrollStatus();
@@ -26,23 +26,23 @@ const Chatbox = ({ messages, sendChatMessage, isHidden }) => {
   }, [messages]);
 
   const updateAutoScrollStatus = () => {
-    if (!autoScrollUpdateThrottling.current) {
-      autoScrollUpdateThrottling.current = true;
-      setTimeout(() => {
-        const messagesWrapper = messagesWrapperRef.current;
-        if (
-          messagesWrapper.scrollHeight -
-            messagesWrapper.clientHeight -
-            messagesWrapper.scrollTop <=
-          20
-        ) {
-          setAutoScrolling(true);
-        } else {
-          setAutoScrolling(false);
-        }
-        autoScrollUpdateThrottling.current = false;
-      }, 250);
+    if (autoScrollCheckTimeoutRef.current) {
+      clearTimeout(autoScrollCheckTimeoutRef.current);
     }
+    autoScrollCheckTimeoutRef.current = setTimeout(() => {
+      const messagesWrapper = messagesWrapperRef.current;
+      const newScrollValue = messagesWrapper.scrollTop;
+      if (
+        messagesWrapper.scrollHeight -
+          messagesWrapper.clientHeight -
+          newScrollValue >=
+        20
+      ) {
+        setAutoScrolling(false);
+      } else {
+        setAutoScrolling(true);
+      }
+    }, 150);
   };
 
   return (
@@ -63,9 +63,7 @@ const Chatbox = ({ messages, sendChatMessage, isHidden }) => {
         <div
           ref={messagesWrapperRef}
           className={style.messagesWrapper}
-          onScroll={() => {
-            updateAutoScrollStatus();
-          }}
+          onScroll={updateAutoScrollStatus}
         >
           {messages.map((message, index) => {
             return (
