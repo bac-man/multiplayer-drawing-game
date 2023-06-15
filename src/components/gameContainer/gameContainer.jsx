@@ -36,10 +36,12 @@ const GameContainer = () => {
     ws.addEventListener("error", handleError);
     ws.addEventListener("open", handleOpen);
     ws.addEventListener("message", handleMessage);
+    ws.addEventListener("close", handleClose);
     return () => {
       ws.removeEventListener("error", handleError);
       ws.removeEventListener("open", handleOpen);
       ws.removeEventListener("message", handleMessage);
+      ws.removeEventListener("close", handleClose);
     };
   }, []);
 
@@ -103,6 +105,10 @@ const GameContainer = () => {
         setTimeLeft(parsedData.data);
         break;
     }
+  };
+
+  const handleClose = () => {
+    setConnectionInfoMessage("The connection to the game server was closed.");
   };
 
   const sendNewLineData = (linePoints) => {
