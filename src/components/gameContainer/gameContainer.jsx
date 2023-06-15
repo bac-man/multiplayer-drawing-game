@@ -4,6 +4,7 @@ import RoundInfo from "../roundInfo/roundInfo";
 import GameCanvas from "../gameCanvas/gameCanvas";
 import BrushOptions from "../brushOptions/brushOptions";
 import style from "./gameContainer.module.scss";
+import TabButtons from "../tabButtons/tabButtons";
 
 const GameContainer = () => {
   // If the max size is changed here, it should also be changed
@@ -180,25 +181,11 @@ const GameContainer = () => {
             maxBrushSize={maxBrushSize}
             undoLine={undoLine}
           />
-          <div className={style.tabButtons}>
-            <button
-              onClick={() => {
-                setSelectedTab(0);
-              }}
-              className={`${selectedTab === 0 ? style.selected : ""}`}
-            >
-              Chat
-            </button>
-            <button
-              onClick={() => {
-                setSelectedTab(1);
-              }}
-              className={`${selectedTab === 1 ? style.selected : ""}`}
-              disabled={!drawingAllowed}
-            >
-              Drawing tools
-            </button>
-          </div>
+          <TabButtons
+            selectedTab={selectedTab}
+            setSelectedTab={setSelectedTab}
+            drawingAllowed={drawingAllowed}
+          />
         </div>
       </div>
       <div
