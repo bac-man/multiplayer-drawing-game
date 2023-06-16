@@ -276,8 +276,8 @@ server.on("connection", (ws) => {
     console.log(`${player.name} has disconnected from the WebSocket server.`);
     let leaveMessage = `${player.name} has left.`;
     let leaveMessageColor = "gray";
-    joinedPlayers.forEach((player, index) => {
-      if (player.ws === ws) {
+    joinedPlayers.forEach((joinedPlayer, index) => {
+      if (joinedPlayer.ws === ws) {
         joinedPlayers.splice(index, 1);
       }
     });
