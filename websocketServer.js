@@ -16,6 +16,7 @@ let lineHistory = [];
 let chatHistory = [];
 let currentDrawer;
 let nextPlayerNumber = 1;
+let playersJoinedDuringRound = [];
 let currentWord;
 let usedWords = [];
 let previousDrawers = [];
@@ -65,7 +66,13 @@ const selectNewWord = (previousWord = null) => {
 const selectNewDrawer = () => {
   let newDrawerSelected = false;
   for (const joinedPlayer of joinedPlayers) {
-    if (!previousDrawers.includes(joinedPlayer)) {
+    if (
+      !previousDrawers.includes(joinedPlayer) &&
+      (!playersJoinedDuringRound.includes(joinedPlayer) ||
+        // Prevent the first player from being the drawer twice in a row
+        (playersJoinedDuringRound.includes(joinedPlayer) &&
+          joinedPlayers.length - playersJoinedDuringRound.length == 1))
+    ) {
       currentDrawer = joinedPlayer;
       newDrawerSelected = true;
       break;
@@ -200,6 +207,7 @@ const startNewRound = async (intermissionTimer = true) => {
   sendMessageToPlayers("roundTimeUpdate", roundTimeLeft);
   roundTimerInterval = setInterval(decrementRoundTimer, 1000);
   sendMessageToPlayers("roundStart", null);
+  playersJoinedDuringRound = [];
 };
 
 const decrementRoundTimer = () => {
@@ -230,6 +238,7 @@ server.on("connection", (ws) => {
   const player = { name: `Player ${nextPlayerNumber}`, ws: ws };
   nextPlayerNumber++;
   joinedPlayers.push(player);
+  playersJoinedDuringRound.push(player);
   console.log(`${player.name} has connected to the WebSocket server.`);
   sendChatMessageToPlayers(`${player.name} has joined.`, null, "gray");
   if (currentDrawer) {
