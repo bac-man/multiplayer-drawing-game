@@ -1,10 +1,11 @@
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Chatbox from "../chatbox/chatbox";
 import RoundInfo from "../roundInfo/roundInfo";
 import GameCanvas from "../gameCanvas/gameCanvas";
 import BrushOptions from "../brushOptions/brushOptions";
 import style from "./gameContainer.module.scss";
 import TabButtons from "../tabButtons/tabButtons";
+import PlayerList from "../playerList/playerList";
 
 const GameContainer = () => {
   // If the max size is changed here, it should also be changed
@@ -26,7 +27,9 @@ const GameContainer = () => {
   const [drawerInfo, setDrawerInfo] = useState("");
   const [timeLeft, setTimeLeft] = useState(0);
   const [messages, setMessages] = useState([]);
+  const [playerNames, setPlayerNames] = useState([]);
   const messagesRef = useRef([]);
+  const playerNamesRef = useRef([]);
   const lineHistoryRef = useRef([]);
   const wsRef = useRef();
   const canvasRef = useRef();
@@ -95,6 +98,9 @@ const GameContainer = () => {
           new CustomEvent("newLine", { detail: parsedData.data })
         );
         break;
+      case "playerListUpdate":
+        updatePlayerNameList(parsedData.data);
+        break;
       case "roundEnd":
         setRoundEndGradientColor(parsedData.data);
         setRoundEndGradientVisible(true);
@@ -146,6 +152,13 @@ const GameContainer = () => {
     setMessages([...messagesRef.current]);
   };
 
+  const updatePlayerNameList = (newNameList) => {
+    // Update the player names state via ref to avoid missing players when multiple
+    // join in a short timespan (state updates are not synchronous/instant)
+    playerNamesRef.current = newNameList;
+    setPlayerNames([...playerNamesRef.current]);
+  };
+
   return (
     <div className={style.gameContainer}>
       <div
@@ -181,6 +194,7 @@ const GameContainer = () => {
             maxBrushSize={maxBrushSize}
             undoLine={undoLine}
           />
+          <PlayerList isHidden={selectedTab !== 2} playerNames={playerNames} />
           <TabButtons
             selectedTab={selectedTab}
             setSelectedTab={setSelectedTab}

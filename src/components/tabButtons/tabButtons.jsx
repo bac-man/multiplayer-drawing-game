@@ -20,6 +20,14 @@ const TabButtons = ({ selectedTab, setSelectedTab, drawingAllowed }) => {
       >
         Drawing tools
       </button>
+      <button
+        onClick={() => {
+          setSelectedTab(2);
+        }}
+        className={`${selectedTab === 2 ? style.selected : ""}`}
+      >
+        Player list
+      </button>
     </div>
   );
 };

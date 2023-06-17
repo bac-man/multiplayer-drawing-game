@@ -1,0 +1,19 @@
+@import "../../style/variables.scss";
+
+.playerList {
+  flex: 1 1 0;
+  height: 100%;
+  overflow: hidden;
+  ul {
+    height: 100%;
+    list-style: none;
+    overflow-y: scroll;
+    background-color: $light-gray;
+    border-radius: $border-radius;
+    padding: 0.75rem;
+    li {
+      color: rgb(255, 255, 255);
+      font-size: 1.25rem;
+    }
+  }
+}

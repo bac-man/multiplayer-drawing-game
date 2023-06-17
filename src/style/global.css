@@ -22,7 +22,8 @@ body {
 span,
 button,
 input,
-label {
+label,
+li {
   font-family: "Source Sans Pro", sans-serif;
 }
 

@@ -234,12 +234,21 @@ const getRandomNumber = (max) => {
   return Math.floor(Math.random() * (max + 1));
 };
 
+const getPlayerNameList = () => {
+  const names = [];
+  joinedPlayers.forEach((player) => {
+    names.push(player.name);
+  });
+  return names;
+};
+
 server.on("connection", (ws) => {
   const player = { name: `Player ${nextPlayerNumber}`, ws: ws };
   nextPlayerNumber++;
   joinedPlayers.push(player);
   playersJoinedDuringRound.push(player);
   console.log(`${player.name} has connected to the WebSocket server.`);
+  sendMessageToPlayers("playerListUpdate", getPlayerNameList());
   sendChatMessageToPlayers(`${player.name} has joined.`, null, "gray");
   if (currentDrawer) {
     sendMessageToPlayer(player, "drawerInfoUpdate", getDrawerInfoMessage());
@@ -289,6 +298,7 @@ server.on("connection", (ws) => {
         leaveMessageColor = "blue";
       }
     }
+    sendMessageToPlayers("playerListUpdate", getPlayerNameList());
     sendChatMessageToPlayers(leaveMessage, null, leaveMessageColor);
   });
 });
