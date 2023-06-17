@@ -50,7 +50,7 @@ const GameContainer = () => {
   }, []);
 
   useEffect(() => {
-    if (!drawingAllowed) {
+    if (!drawingAllowed && selectedTab == 1) {
       setSelectedTab(0);
     }
   }, [drawingAllowed]);
