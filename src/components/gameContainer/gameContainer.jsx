@@ -4,8 +4,8 @@ import RoundInfo from "../roundInfo/roundInfo";
 import GameCanvas from "../gameCanvas/gameCanvas";
 import BrushOptions from "../brushOptions/brushOptions";
 import style from "./gameContainer.module.scss";
-import TabButtons from "../tabButtons/tabButtons";
 import PlayerList from "../playerList/playerList";
+import Tabs from "../tabs/tabs";
 
 const GameContainer = () => {
   // If the max size is changed here, it should also be changed
@@ -21,7 +21,6 @@ const GameContainer = () => {
     "Connecting to the game server..."
   );
   const [drawingAllowed, setDrawingAllowed] = useState(false);
-  const [selectedTab, setSelectedTab] = useState(0);
   const [roundEndGradientColor, setRoundEndGradientColor] = useState("");
   const [roundEndGradientVisible, setRoundEndGradientVisible] = useState(false);
   const [drawerInfo, setDrawerInfo] = useState("");
@@ -48,12 +47,6 @@ const GameContainer = () => {
       ws.removeEventListener("close", handleClose);
     };
   }, []);
-
-  useEffect(() => {
-    if (!drawingAllowed && selectedTab == 1) {
-      setSelectedTab(0);
-    }
-  }, [drawingAllowed]);
 
   const handleError = () => {
     setConnectionInfoMessage(
@@ -180,27 +173,23 @@ const GameContainer = () => {
           sendNewLineData={sendNewLineData}
           lineHistoryRef={lineHistoryRef}
         />
-        <div className={style.tabs}>
+        <Tabs drawingAllowed={drawingAllowed}>
           <Chatbox
             messages={messages}
             sendChatMessage={sendChatMessage}
-            isHidden={selectedTab !== 0}
+            tabButtonText={"Chat"}
           />
           <BrushOptions
-            isHidden={selectedTab !== 1}
             brushStyle={brushStyle}
             setBrushStyle={setBrushStyle}
             drawingAllowed={drawingAllowed}
             maxBrushSize={maxBrushSize}
             undoLine={undoLine}
+            tabButtonText={"Drawing tools"}
+            enabledOnlyWhenDrawer={true}
           />
-          <PlayerList isHidden={selectedTab !== 2} playerNames={playerNames} />
-          <TabButtons
-            selectedTab={selectedTab}
-            setSelectedTab={setSelectedTab}
-            drawingAllowed={drawingAllowed}
-          />
-        </div>
+          <PlayerList playerNames={playerNames} tabButtonText={"Player list"} />
+        </Tabs>
       </div>
       <div
         className={`${style.connectionInfoMessage} ${

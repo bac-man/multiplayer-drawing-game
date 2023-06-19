@@ -57,22 +57,6 @@
       align-items: center;
       padding: $spacing;
     }
-    .tabs {
-      display: flex;
-      flex-direction: column;
-      gap: $small-spacing;
-      padding: $small-spacing 0 0 0;
-      aspect-ratio: 2 / 1;
-      min-height: 13rem;
-      @include desktop-or-landscape() {
-        aspect-ratio: unset;
-        min-height: unset;
-        align-self: stretch;
-        flex: 0 1 25%;
-        padding: 0 0 0 $spacing;
-        gap: $spacing;
-      }
-    }
   }
   .connectionInfoMessage {
     position: fixed;

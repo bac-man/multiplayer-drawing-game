@@ -1,8 +1,8 @@
 import style from "./playerList.module.scss";
 
-const PlayerList = ({ playerNames, isHidden }) => {
+const PlayerList = ({ playerNames }) => {
   return (
-    <div className={`${style.playerList} ${isHidden ? "hidden" : ""}`}>
+    <div className={style.playerList}>
       <ul>
         {playerNames.map((name, index) => {
           return <li key={index}>{name}</li>;

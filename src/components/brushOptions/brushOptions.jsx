@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import style from "./brushOptions.module.scss";
 
 const BrushOptions = ({
-  isHidden,
   brushStyle,
   setBrushStyle,
   drawingAllowed,
@@ -27,7 +26,7 @@ const BrushOptions = ({
   }, [drawingAllowed]);
 
   return (
-    <div className={`${style.brushOptions} ${isHidden ? "hidden" : ""}`}>
+    <div className={style.brushOptions}>
       <div className={style.field}>
         <label htmlFor={"brushColor"}>Brush color</label>
         <input
