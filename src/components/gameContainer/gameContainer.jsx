@@ -177,7 +177,7 @@ const GameContainer = () => {
           <Chatbox
             messages={messages}
             sendChatMessage={sendChatMessage}
-            tabButtonText={"Chat"}
+            tabButtonText={"💬"}
           />
           <BrushOptions
             brushStyle={brushStyle}
@@ -185,10 +185,10 @@ const GameContainer = () => {
             drawingAllowed={drawingAllowed}
             maxBrushSize={maxBrushSize}
             undoLine={undoLine}
-            tabButtonText={"Drawing tools"}
+            tabButtonText={"✏️"}
             enabledOnlyWhenDrawer={true}
           />
-          <PlayerList playerNames={playerNames} tabButtonText={"Player list"} />
+          <PlayerList playerNames={playerNames} tabButtonText={"👥"} />
         </Tabs>
       </div>
       <div

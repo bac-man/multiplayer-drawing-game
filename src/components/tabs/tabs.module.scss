@@ -28,11 +28,18 @@
     button {
       flex: 1 1 auto;
       border-radius: $border-radius;
+      font-size: 1rem;
+      @media screen and (min-width: 400px) {
+        font-size: 1.5rem;
+      }
+      @include desktop-or-landscape() {
+        font-size: 1rem;
+      }
       &.selected {
         background-color: $light-gray;
       }
       &:disabled {
-        opacity: 0.5;
+        opacity: 0.25;
         cursor: not-allowed;
       }
     }
