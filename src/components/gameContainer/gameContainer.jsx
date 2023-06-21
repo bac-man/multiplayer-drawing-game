@@ -26,8 +26,9 @@ const GameContainer = () => {
   const [drawerInfo, setDrawerInfo] = useState("");
   const [timeLeft, setTimeLeft] = useState(0);
   const [messages, setMessages] = useState([]);
-  // Update the messages state via ref to avoid missing messages when multiple
-  // are received in a short timespan (state updates are not synchronous/instant)
+  // Update the messages and player name list states via refs to avoid missing entries
+  // when multiple updates occur in a short timespan (state updates are not synchronous/instant)
+  const [playerNames, setPlayerNames] = useState([]);
   const messagesRef = useRef([]);
   const playerNamesRef = useRef([]);
   const lineHistoryRef = useRef([]);
@@ -92,7 +93,7 @@ const GameContainer = () => {
         );
         break;
       case "playerListUpdate":
-        playerNamesRef.current = messageValue;
+        updatePlayerNameList(messageValue);
         break;
       case "roundEnd":
         setRoundEndGradientColor(messageValue);
@@ -148,6 +149,11 @@ const GameContainer = () => {
     setMessages([...messagesRef.current]);
   };
 
+  const updatePlayerNameList = (newNameList) => {
+    playerNamesRef.current = newNameList;
+    setPlayerNames([...playerNamesRef.current]);
+  };
+
   return (
     <div className={style.gameContainer}>
       <div
@@ -184,10 +190,7 @@ const GameContainer = () => {
             tabButtonText={"✏️"}
             enabledOnlyWhenDrawer={true}
           />
-          <PlayerList
-            playerNames={playerNamesRef.current}
-            tabButtonText={"👥"}
-          />
+          <PlayerList playerNames={playerNames} tabButtonText={"👥"} />
         </Tabs>
       </div>
       <div
