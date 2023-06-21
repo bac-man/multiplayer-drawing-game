@@ -25,19 +25,19 @@ let roundTimeLeft;
 let roundTimerInterval;
 let roundIntermission = false;
 
-const sendMessageToPlayers = (type, data, excludeCurrentDrawer = false) => {
+const sendMessageToPlayers = (type, value, excludeCurrentDrawer = false) => {
   joinedPlayers.forEach((player) => {
     if (
       !excludeCurrentDrawer ||
       (excludeCurrentDrawer && player.ws !== currentDrawer.ws)
     ) {
-      player?.ws?.send(JSON.stringify({ type: type, data: data }));
+      player?.ws?.send(JSON.stringify({ type: type, value: value }));
     }
   });
 };
 
-const sendMessageToPlayer = (player, type, data) => {
-  player?.ws?.send(JSON.stringify({ type: type, data: data }));
+const sendMessageToPlayer = (player, type, value) => {
+  player?.ws?.send(JSON.stringify({ type: type, value: value }));
 };
 
 const getDrawerInfoMessage = (playerIsDrawer = false) => {

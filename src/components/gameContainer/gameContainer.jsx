@@ -26,6 +26,8 @@ const GameContainer = () => {
   const [drawerInfo, setDrawerInfo] = useState("");
   const [timeLeft, setTimeLeft] = useState(0);
   const [messages, setMessages] = useState([]);
+  // Update the messages state via ref to avoid missing messages when multiple
+  // are received in a short timespan (state updates are not synchronous/instant)
   const messagesRef = useRef([]);
   const playerNamesRef = useRef([]);
   const lineHistoryRef = useRef([]);
@@ -59,49 +61,48 @@ const GameContainer = () => {
 
   const handleMessage = (message) => {
     const parsedData = JSON.parse(message.data);
+    const messageValue = parsedData.value;
     switch (parsedData.type) {
       case "chatHistory":
-        messagesRef.current = parsedData.data;
-        setMessages(parsedData.data);
+        addChatHistory(messageValue);
         break;
       case "chatMessage":
-        const messageData = parsedData.data;
         addNewChatMessage(
-          messageData.text,
-          messageData.sender,
-          messageData.className
+          messageValue.text,
+          messageValue.sender,
+          messageValue.className
         );
         break;
       case "drawerInfoUpdate":
-        setDrawerInfo(parsedData.data);
+        setDrawerInfo(messageValue);
         break;
       case "drawerStatusChange":
-        setDrawingAllowed(parsedData.data);
+        setDrawingAllowed(messageValue);
         break;
       case "lineHistory":
-        lineHistoryRef.current = parsedData.data;
+        lineHistoryRef.current = messageValue;
         break;
       case "lineHistoryWithRedraw":
-        lineHistoryRef.current = parsedData.data;
+        lineHistoryRef.current = messageValue;
         canvasRef.current.dispatchEvent(new CustomEvent("redraw"));
         break;
       case "newLineData":
         canvasRef.current.dispatchEvent(
-          new CustomEvent("newLine", { detail: parsedData.data })
+          new CustomEvent("newLine", { detail: messageValue })
         );
         break;
       case "playerListUpdate":
-        playerNamesRef.current = parsedData.data;
+        playerNamesRef.current = messageValue;
         break;
       case "roundEnd":
-        setRoundEndGradientColor(parsedData.data);
+        setRoundEndGradientColor(messageValue);
         setRoundEndGradientVisible(true);
         break;
       case "roundStart":
         setRoundEndGradientVisible(false);
         break;
       case "roundTimeUpdate":
-        setTimeLeft(parsedData.data);
+        setTimeLeft(messageValue);
         break;
     }
   };
@@ -133,9 +134,12 @@ const GameContainer = () => {
     inputElement.value = "";
   };
 
+  const addChatHistory = (chatHistory) => {
+    messagesRef.current = chatHistory;
+    setMessages(messagesRef.current);
+  };
+
   const addNewChatMessage = (text, sender, className) => {
-    // Update the messages state via ref to avoid missing messages when multiple
-    // are received in a short timespan (state updates are not synchronous/instant)
     messagesRef.current.push({
       sender: sender,
       text: text,
