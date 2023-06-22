@@ -24,6 +24,7 @@ const roundDuration = 60;
 let roundTimeLeft;
 let roundTimerInterval;
 let roundIntermission = false;
+const chatMessageMaxLength = 50;
 const maxBrushSize = 100;
 const brushStyle = {
   lineWidth: parseInt(maxBrushSize / 3),
@@ -150,9 +151,7 @@ const sendChatMessageToPlayers = (text, sender, className) => {
 };
 
 const handleChatMessage = (sender, text) => {
-  // If the max length is changed here, it should also be changed
-  // in chatbox.jsx accordingly
-  if (text.length > 50) {
+  if (text.length > chatMessageMaxLength) {
     return;
   }
   if (
@@ -252,7 +251,10 @@ server.on("connection", (ws) => {
   nextPlayerNumber++;
   joinedPlayers.push(player);
   playersJoinedDuringRound.push(player);
-  sendMessageToPlayer(player, "brushStyle", brushStyle);
+  sendMessageToPlayer(player, "inputValues", {
+    brushStyle: brushStyle,
+    chatMessageMaxLength: chatMessageMaxLength,
+  });
   console.log(`${player.name} has connected to the WebSocket server.`);
   sendMessageToPlayers("playerListUpdate", getPlayerNameList());
   sendChatMessageToPlayers(`${player.name} has joined.`, null, "gray");

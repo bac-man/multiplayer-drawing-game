@@ -9,6 +9,7 @@ import Tabs from "../tabs/tabs";
 
 const GameContainer = () => {
   const [brushStyle, setBrushStyle] = useState({});
+  const [chatMessageMaxLength, setChatMessageMaxLength] = useState(0);
   const [connectionInfoMessage, setConnectionInfoMessage] = useState(
     "Connecting to the game server..."
   );
@@ -56,9 +57,6 @@ const GameContainer = () => {
     const parsedData = JSON.parse(message.data);
     const messageValue = parsedData.value;
     switch (parsedData.type) {
-      case "brushStyle":
-        setBrushStyle(messageValue);
-        break;
       case "chatHistory":
         addChatHistory(messageValue);
         break;
@@ -74,6 +72,10 @@ const GameContainer = () => {
         break;
       case "drawerStatusChange":
         setDrawingAllowed(messageValue);
+        break;
+      case "inputValues":
+        setBrushStyle(messageValue.brushStyle);
+        setChatMessageMaxLength(messageValue.chatMessageMaxLength);
         break;
       case "lineHistory":
         lineHistoryRef.current = messageValue;
@@ -174,6 +176,7 @@ const GameContainer = () => {
           <Chatbox
             messages={messages}
             sendChatMessage={sendChatMessage}
+            chatMessageMaxLength={chatMessageMaxLength}
             tabButtonText={"💬"}
           />
           <BrushOptions

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import style from "./chatbox.module.scss";
 
-const Chatbox = ({ messages, sendChatMessage }) => {
+const Chatbox = ({ messages, sendChatMessage, chatMessageMaxLength }) => {
   const inputRef = useRef();
   const messagesWrapperRef = useRef();
   const [autoScrolling, setAutoScrolling] = useState(true);
@@ -79,9 +79,7 @@ const Chatbox = ({ messages, sendChatMessage }) => {
         <input
           ref={inputRef}
           type={"text"}
-          // If the max length is changed here, it should also be changed
-          // in websocketServer.js accordingly
-          maxLength={50}
+          maxLength={chatMessageMaxLength}
           onKeyDown={(e) => {
             if (e.key == "Enter") {
               sendChatMessage(inputRef.current);
