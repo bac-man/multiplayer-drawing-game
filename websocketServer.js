@@ -24,6 +24,13 @@ const roundDuration = 60;
 let roundTimeLeft;
 let roundTimerInterval;
 let roundIntermission = false;
+const maxBrushSize = 100;
+const brushStyle = {
+  lineWidth: parseInt(maxBrushSize / 3),
+  lineCap: "round",
+  strokeStyle: "#000000",
+  maxBrushSize: maxBrushSize,
+};
 
 const sendMessageToPlayers = (type, value, excludeCurrentDrawer = false) => {
   joinedPlayers.forEach((player) => {
@@ -103,12 +110,10 @@ const handleNewLineData = (sender, lineData) => {
     if (!point || !point.x || isNaN(point.x) || !point.y || isNaN(point.y)) {
       return;
     }
-    // If the max size is changed here, it should also be changed
-    // in gameContainer.jsx accordingly
     if (
-      point.options.lineWidth > 100 ||
+      point.options.lineWidth > maxBrushSize ||
       point.options.lineWidth < 1 ||
-      point.options.lineCap !== "round"
+      point.options.lineCap !== brushStyle.lineCap
     ) {
       // Remove the disallowed line from the drawer's canvas
       sendMessageToPlayer(currentDrawer, "lineHistoryWithRedraw", lineHistory);
@@ -247,6 +252,7 @@ server.on("connection", (ws) => {
   nextPlayerNumber++;
   joinedPlayers.push(player);
   playersJoinedDuringRound.push(player);
+  sendMessageToPlayer(player, "brushStyle", brushStyle);
   console.log(`${player.name} has connected to the WebSocket server.`);
   sendMessageToPlayers("playerListUpdate", getPlayerNameList());
   sendChatMessageToPlayers(`${player.name} has joined.`, null, "gray");

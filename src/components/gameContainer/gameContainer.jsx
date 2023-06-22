@@ -8,15 +8,7 @@ import PlayerList from "../playerList/playerList";
 import Tabs from "../tabs/tabs";
 
 const GameContainer = () => {
-  // If the max size is changed here, it should also be changed
-  // in webSocketServer.js accordingly
-  const maxBrushSize = 100;
-  const [brushStyle, setBrushStyle] = useState({
-    lineWidth: parseInt(maxBrushSize * 0.333),
-    lineCap: "round",
-    strokeStyle: "#000000",
-  });
-
+  const [brushStyle, setBrushStyle] = useState({});
   const [connectionInfoMessage, setConnectionInfoMessage] = useState(
     "Connecting to the game server..."
   );
@@ -64,6 +56,9 @@ const GameContainer = () => {
     const parsedData = JSON.parse(message.data);
     const messageValue = parsedData.value;
     switch (parsedData.type) {
+      case "brushStyle":
+        setBrushStyle(messageValue);
+        break;
       case "chatHistory":
         addChatHistory(messageValue);
         break;
@@ -185,7 +180,6 @@ const GameContainer = () => {
             brushStyle={brushStyle}
             setBrushStyle={setBrushStyle}
             drawingAllowed={drawingAllowed}
-            maxBrushSize={maxBrushSize}
             undoLine={undoLine}
             tabButtonText={"✏️"}
             enabledOnlyWhenDrawer={true}

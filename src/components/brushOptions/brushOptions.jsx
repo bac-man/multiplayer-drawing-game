@@ -1,22 +1,37 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import style from "./brushOptions.module.scss";
 
 const BrushOptions = ({
   brushStyle,
   setBrushStyle,
   drawingAllowed,
-  maxBrushSize,
   undoLine,
 }) => {
   const [optionsVisible, setOptionsVisible] = useState(false);
-  const [color, setColor] = useState(brushStyle.strokeStyle);
-  const [size, setSize] = useState(brushStyle.lineWidth);
+  const [color, setColor] = useState("");
+  const [size, setSize] = useState(1);
+  const [maxBrushSize, setMaxBrushSize] = useState();
+  const initialValuesSetRef = useRef(false);
 
   useEffect(() => {
-    const newBrushStyle = { ...brushStyle };
-    newBrushStyle.strokeStyle = color;
-    newBrushStyle.lineWidth = size;
-    setBrushStyle(newBrushStyle);
+    if (!initialValuesSetRef.current) {
+      if (Object.keys(brushStyle).length === 0) {
+        return;
+      }
+      setMaxBrushSize(brushStyle.maxBrushSize);
+      setSize(brushStyle.lineWidth);
+      setColor(brushStyle.strokeStyle);
+      initialValuesSetRef.current = true;
+    }
+  }, [brushStyle]);
+
+  useEffect(() => {
+    if (initialValuesSetRef.current) {
+      const newBrushStyle = { ...brushStyle };
+      newBrushStyle.strokeStyle = color;
+      newBrushStyle.lineWidth = size;
+      setBrushStyle(newBrushStyle);
+    }
   }, [color, size]);
 
   useEffect(() => {
