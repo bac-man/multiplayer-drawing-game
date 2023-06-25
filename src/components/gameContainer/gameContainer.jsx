@@ -17,7 +17,7 @@ const GameContainer = () => {
   const [roundEndGradientColor, setRoundEndGradientColor] = useState("");
   const [roundEndGradientVisible, setRoundEndGradientVisible] = useState(false);
   const [drawerInfo, setDrawerInfo] = useState("");
-  const [timeLeft, setTimeLeft] = useState(0);
+  const [timeLeft, setTimeLeft] = useState("∞");
   const [messages, setMessages] = useState([]);
   // Update the messages and player name list states via refs to avoid missing entries
   // when multiple updates occur in a short timespan (state updates are not synchronous/instant)

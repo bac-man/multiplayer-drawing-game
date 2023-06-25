@@ -24,6 +24,8 @@ const roundDuration = 60;
 let roundTimeLeft;
 let roundTimerInterval;
 let roundIntermission = false;
+let practiceMode = false;
+const roundStartMessage = "A new round will start shortly.";
 const chatMessageMaxLength = 50;
 const maxBrushSize = 100;
 const brushStyle = {
@@ -71,24 +73,25 @@ const selectNewWord = (previousWord = null) => {
   }
 };
 
-const selectNewDrawer = () => {
-  let newDrawerSelected = false;
-  for (const joinedPlayer of joinedPlayers) {
-    if (
-      !previousDrawers.includes(joinedPlayer) &&
-      (!playersJoinedDuringRound.includes(joinedPlayer) ||
-        // Prevent the first player from being the drawer twice in a row
-        (playersJoinedDuringRound.includes(joinedPlayer) &&
-          joinedPlayers.length - playersJoinedDuringRound.length == 1))
-    ) {
-      currentDrawer = joinedPlayer;
-      newDrawerSelected = true;
-      break;
+const selectNewDrawer = (newDrawer = null) => {
+  if (newDrawer) {
+    currentDrawer = newDrawer;
+  } else {
+    let newDrawerSelected = false;
+    for (const joinedPlayer of joinedPlayers) {
+      if (
+        !previousDrawers.includes(joinedPlayer) &&
+        !playersJoinedDuringRound.includes(joinedPlayer)
+      ) {
+        currentDrawer = joinedPlayer;
+        newDrawerSelected = true;
+        break;
+      }
     }
-  }
-  if (!newDrawerSelected) {
-    previousDrawers = [];
-    currentDrawer = joinedPlayers[0];
+    if (!newDrawerSelected) {
+      previousDrawers = [];
+      currentDrawer = joinedPlayers[0];
+    }
   }
   if (currentDrawer) {
     console.log(`${currentDrawer.name} was chosen as the drawer.`);
@@ -165,27 +168,18 @@ const handleChatMessage = (sender, text) => {
   }
 };
 
-const startNewRound = async (intermissionTimer = true) => {
-  if (joinedPlayers.length == 0) {
-    currentDrawer = null;
-    currentWord = null;
-    previousDrawers = [];
-    usedWords = [];
-    return;
-  }
-
-  if (intermissionTimer) {
-    roundIntermission = true;
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    roundIntermission = false;
-  }
+const startNewRound = async () => {
+  roundIntermission = true;
+  sendMessageToPlayers("drawerInfoUpdate", roundStartMessage);
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  roundIntermission = false;
 
   let previousWord;
   if (currentWord) {
     previousWord = currentWord;
     usedWords.push(previousWord);
   }
-  if (currentDrawer) {
+  if (currentDrawer && !practiceMode) {
     const previousDrawer = currentDrawer;
     previousDrawers.push(previousDrawer);
     sendMessageToPlayer(previousDrawer, "drawerStatusChange", false);
@@ -212,6 +206,25 @@ const startNewRound = async (intermissionTimer = true) => {
   roundTimerInterval = setInterval(decrementRoundTimer, 1000);
   sendMessageToPlayers("roundStart", null);
   playersJoinedDuringRound = [];
+};
+
+const startPracticeMode = (player) => {
+  practiceMode = true;
+  if (roundTimerInterval) {
+    clearInterval(roundTimerInterval);
+  }
+  sendMessageToPlayer(
+    player,
+    "drawerInfoUpdate",
+    "Waiting for other players to join..."
+  );
+  if (lineHistory.length > 0) {
+    lineHistory = [];
+    sendMessageToPlayer(player, "lineHistoryWithRedraw", lineHistory);
+  }
+  sendMessageToPlayer(player, "roundTimeUpdate", "∞");
+  selectNewDrawer(player);
+  sendMessageToPlayer(player, "drawerStatusChange", true);
 };
 
 const decrementRoundTimer = () => {
@@ -258,10 +271,19 @@ server.on("connection", (ws) => {
   console.log(`${player.name} has connected to the WebSocket server.`);
   sendMessageToPlayers("playerListUpdate", getPlayerNameList());
   sendChatMessageToPlayers(`${player.name} has joined.`, null, "gray");
-  if (currentDrawer) {
+  if (currentDrawer && !practiceMode && !roundIntermission) {
     sendMessageToPlayer(player, "drawerInfoUpdate", getDrawerInfoMessage());
+    sendMessageToPlayer(player, "roundTimeUpdate", roundTimeLeft);
   } else {
-    startNewRound(false);
+    if (practiceMode) {
+      startNewRound();
+      practiceMode = false;
+    } else if (joinedPlayers.length === 1) {
+      startPracticeMode(player);
+    }
+    if (roundIntermission) {
+      sendMessageToPlayer(player, "drawerInfoUpdate", roundStartMessage);
+    }
   }
   if (lineHistory.length > 0) {
     sendMessageToPlayer(player, "lineHistoryWithRedraw", lineHistory);
@@ -269,7 +291,7 @@ server.on("connection", (ws) => {
   if (chatHistory.length > 0) {
     sendMessageToPlayer(player, "chatHistory", chatHistory);
   }
-  sendMessageToPlayer(player, "roundTimeUpdate", roundTimeLeft);
+
   ws.on("message", (data) => {
     let parsedData;
     try {
@@ -298,6 +320,21 @@ server.on("connection", (ws) => {
         joinedPlayers.splice(index, 1);
       }
     });
+    if (joinedPlayers.length <= 1) {
+      currentDrawer = null;
+      currentWord = null;
+      previousDrawers = [];
+      usedWords = [];
+      practiceMode = false;
+    }
+    if (joinedPlayers.length === 1) {
+      startPracticeMode(joinedPlayers[0]);
+    } else if (joinedPlayers.length === 0) {
+      if (roundTimerInterval) {
+        clearInterval(roundTimerInterval);
+      }
+      return;
+    }
     if (player.ws === currentDrawer.ws && !roundIntermission) {
       console.log("The drawer has left. Starting a new round.");
       startNewRound();
