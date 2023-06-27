@@ -25,6 +25,7 @@ let roundTimeLeft;
 let roundTimerInterval;
 let roundIntermission = false;
 let practiceMode = false;
+let cancelRound = false;
 const roundStartMessage = "A new round will start shortly.";
 const chatMessageMaxLength = 50;
 const maxBrushSize = 100;
@@ -173,7 +174,10 @@ const startNewRound = async () => {
   sendMessageToPlayers("drawerInfoUpdate", roundStartMessage);
   await new Promise((resolve) => setTimeout(resolve, 3000));
   roundIntermission = false;
-
+  if (cancelRound) {
+    cancelRound = false;
+    return;
+  }
   let previousWord;
   if (currentWord) {
     previousWord = currentWord;
@@ -278,6 +282,9 @@ const handleClose = (player) => {
     practiceMode = false;
   }
   if (joinedPlayers.length === 1) {
+    if (roundIntermission) {
+      cancelRound = true;
+    }
     startPracticeMode(joinedPlayers[0]);
   } else if (joinedPlayers.length === 0) {
     if (roundTimerInterval) {
