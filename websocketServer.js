@@ -259,8 +259,43 @@ const getPlayerNameList = () => {
   return names;
 };
 
-server.on("connection", (ws) => {
-  const player = { name: `Player ${nextPlayerNumber}`, ws: ws };
+const handleClose = (player) => {
+  console.log(`${player.name} has disconnected from the WebSocket server.`);
+  let leaveMessage = `${player.name} has left.`;
+  let leaveMessageColor = "gray";
+  joinedPlayers.forEach((joinedPlayer, index) => {
+    if (joinedPlayer.ws === player.ws) {
+      joinedPlayers.splice(index, 1);
+    }
+  });
+  if (joinedPlayers.length <= 1) {
+    currentDrawer = null;
+    currentWord = null;
+    previousDrawers = [];
+    usedWords = [];
+    practiceMode = false;
+  }
+  if (joinedPlayers.length === 1) {
+    startPracticeMode(joinedPlayers[0]);
+  } else if (joinedPlayers.length === 0) {
+    if (roundTimerInterval) {
+      clearInterval(roundTimerInterval);
+    }
+    return;
+  }
+  if (player.ws === currentDrawer.ws && !roundIntermission) {
+    console.log("The drawer has left. Starting a new round.");
+    startNewRound();
+    if (currentDrawer) {
+      leaveMessage += ` They were the drawer, so a new round will be started.`;
+      leaveMessageColor = "blue";
+    }
+  }
+  sendMessageToPlayers("playerListUpdate", getPlayerNameList());
+  sendChatMessageToPlayers(leaveMessage, null, leaveMessageColor);
+};
+
+const handleConnection = (player) => {
   nextPlayerNumber++;
   joinedPlayers.push(player);
   playersJoinedDuringRound.push(player);
@@ -291,59 +326,35 @@ server.on("connection", (ws) => {
   if (chatHistory.length > 0) {
     sendMessageToPlayer(player, "chatHistory", chatHistory);
   }
+};
 
+const handleMessage = (data, player) => {
+  let parsedData;
+  try {
+    parsedData = JSON.parse(data);
+  } catch (e) {
+    return;
+  }
+  switch (parsedData?.type) {
+    case "newLineData":
+      handleNewLineData(player, parsedData.data);
+      break;
+    case "chatMessage":
+      handleChatMessage(player, parsedData.data);
+      break;
+    case "undoLine":
+      handleUndoline(player);
+      break;
+  }
+};
+
+server.on("connection", (ws) => {
+  const player = { name: `Player ${nextPlayerNumber}`, ws: ws };
+  handleConnection(player);
   ws.on("message", (data) => {
-    let parsedData;
-    try {
-      parsedData = JSON.parse(data);
-    } catch (e) {
-      return;
-    }
-    switch (parsedData?.type) {
-      case "newLineData":
-        handleNewLineData(player, parsedData.data);
-        break;
-      case "chatMessage":
-        handleChatMessage(player, parsedData.data);
-        break;
-      case "undoLine":
-        handleUndoline(player);
-        break;
-    }
+    handleMessage(data, player);
   });
   ws.on("close", () => {
-    console.log(`${player.name} has disconnected from the WebSocket server.`);
-    let leaveMessage = `${player.name} has left.`;
-    let leaveMessageColor = "gray";
-    joinedPlayers.forEach((joinedPlayer, index) => {
-      if (joinedPlayer.ws === ws) {
-        joinedPlayers.splice(index, 1);
-      }
-    });
-    if (joinedPlayers.length <= 1) {
-      currentDrawer = null;
-      currentWord = null;
-      previousDrawers = [];
-      usedWords = [];
-      practiceMode = false;
-    }
-    if (joinedPlayers.length === 1) {
-      startPracticeMode(joinedPlayers[0]);
-    } else if (joinedPlayers.length === 0) {
-      if (roundTimerInterval) {
-        clearInterval(roundTimerInterval);
-      }
-      return;
-    }
-    if (player.ws === currentDrawer.ws && !roundIntermission) {
-      console.log("The drawer has left. Starting a new round.");
-      startNewRound();
-      if (currentDrawer) {
-        leaveMessage += ` They were the drawer, so a new round will be started.`;
-        leaveMessageColor = "blue";
-      }
-    }
-    sendMessageToPlayers("playerListUpdate", getPlayerNameList());
-    sendChatMessageToPlayers(leaveMessage, null, leaveMessageColor);
+    handleClose(player);
   });
 });
