@@ -14,8 +14,7 @@ const GameContainer = () => {
     "Connecting to the game server..."
   );
   const [drawingAllowed, setDrawingAllowed] = useState(false);
-  const [roundEndGradientColor, setRoundEndGradientColor] = useState("");
-  const [roundEndGradientVisible, setRoundEndGradientVisible] = useState(false);
+  const [backgroundColorClass, setBackgroundColorClass] = useState("");
   const [drawerInfo, setDrawerInfo] = useState("");
   const [timeLeft, setTimeLeft] = useState("∞");
   const [messages, setMessages] = useState([]);
@@ -57,6 +56,9 @@ const GameContainer = () => {
     const parsedData = JSON.parse(message.data);
     const messageValue = parsedData.value;
     switch (parsedData.type) {
+      case "backgroundColorUpdate":
+        setBackgroundColorClass(messageValue);
+        break;
       case "chatHistory":
         addChatHistory(messageValue);
         break;
@@ -91,13 +93,6 @@ const GameContainer = () => {
         break;
       case "playerListUpdate":
         updatePlayerNameList(messageValue);
-        break;
-      case "roundEnd":
-        setRoundEndGradientColor(messageValue);
-        setRoundEndGradientVisible(true);
-        break;
-      case "roundStart":
-        setRoundEndGradientVisible(false);
         break;
       case "roundTimeUpdate":
         setTimeLeft(messageValue);
@@ -153,16 +148,9 @@ const GameContainer = () => {
 
   return (
     <div className={style.gameContainer}>
-      <div
-        className={`${style.drawingModeGradient} ${
-          drawingAllowed ? "" : style.hidden
-        }`}
-      />
-      <div
-        className={`${style.roundEndGradient} ${style[roundEndGradientColor]} ${
-          roundEndGradientVisible ? "" : style.hidden
-        }`}
-      />
+      <div className={`${style.background} ${style[backgroundColorClass]}`}>
+        <div className={style.gradient} />
+      </div>
       <RoundInfo drawerInfo={drawerInfo} timeLeft={timeLeft} />
       <div className={style.controls}>
         <GameCanvas

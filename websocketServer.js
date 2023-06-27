@@ -135,7 +135,7 @@ const handleCorrectGuess = (guesser) => {
     null,
     "green"
   );
-  sendMessageToPlayers("roundEnd", "green");
+  sendMessageToPlayers("backgroundColorUpdate", "green");
   startNewRound();
 };
 
@@ -204,7 +204,8 @@ const startNewRound = async () => {
   roundTimeLeft = roundDuration;
   sendMessageToPlayers("roundTimeUpdate", roundTimeLeft);
   roundTimerInterval = setInterval(decrementRoundTimer, 1000);
-  sendMessageToPlayers("roundStart", null);
+  sendMessageToPlayers("backgroundColorUpdate", "blue", true);
+  sendMessageToPlayer(currentDrawer, "backgroundColorUpdate", "orange");
   playersJoinedDuringRound = [];
 };
 
@@ -218,6 +219,7 @@ const startPracticeMode = (player) => {
     "drawerInfoUpdate",
     "Waiting for other players to join..."
   );
+  sendMessageToPlayer(player, "backgroundColorUpdate", "orange");
   if (lineHistory.length > 0) {
     lineHistory = [];
     sendMessageToPlayer(player, "lineHistoryWithRedraw", lineHistory);
@@ -241,7 +243,7 @@ const decrementRoundTimer = () => {
         "red"
       );
     }
-    sendMessageToPlayers("roundEnd", "red");
+    sendMessageToPlayers("backgroundColorUpdate", "red");
     startNewRound();
   }
   sendMessageToPlayers("roundTimeUpdate", roundTimeLeft);
@@ -309,8 +311,10 @@ const handleConnection = (player) => {
   if (currentDrawer && !practiceMode && !roundIntermission) {
     sendMessageToPlayer(player, "drawerInfoUpdate", getDrawerInfoMessage());
     sendMessageToPlayer(player, "roundTimeUpdate", roundTimeLeft);
+    sendMessageToPlayer(player, "backgroundColorUpdate", "blue");
   } else {
     if (practiceMode) {
+      sendMessageToPlayer(player, "backgroundColorUpdate", "blue");
       startNewRound();
       practiceMode = false;
     } else if (joinedPlayers.length === 1) {
