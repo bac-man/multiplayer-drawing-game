@@ -5,7 +5,7 @@ const PlayerList = ({ playerNames }) => {
     <div className={style.playerList}>
       <ul>
         {playerNames.map((name, index) => {
-          return <li key={index}>{name}</li>;
+          return <li key={`playerName${index}`}>{name}</li>;
         })}
       </ul>
     </div>
