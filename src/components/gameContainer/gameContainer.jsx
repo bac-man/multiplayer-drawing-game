@@ -28,18 +28,24 @@ const GameContainer = () => {
   const canvasRef = useRef();
 
   useEffect(() => {
-    wsRef.current = new WebSocket("ws://192.168.0.104:3001");
-    const ws = wsRef.current;
-    ws.addEventListener("error", handleError);
-    ws.addEventListener("open", handleOpen);
-    ws.addEventListener("message", handleMessage);
-    ws.addEventListener("close", handleClose);
-    return () => {
-      ws.removeEventListener("error", handleError);
-      ws.removeEventListener("open", handleOpen);
-      ws.removeEventListener("message", handleMessage);
-      ws.removeEventListener("close", handleClose);
-    };
+    const address = process.env.WS_SERVER_ADDRESS;
+    const port = process.env.WS_SERVER_PORT || 3001;
+    if (address) {
+      wsRef.current = new WebSocket(`ws://${address}:${port}`);
+      const ws = wsRef.current;
+      ws.addEventListener("error", handleError);
+      ws.addEventListener("open", handleOpen);
+      ws.addEventListener("message", handleMessage);
+      ws.addEventListener("close", handleClose);
+      return () => {
+        ws.removeEventListener("error", handleError);
+        ws.removeEventListener("open", handleOpen);
+        ws.removeEventListener("message", handleMessage);
+        ws.removeEventListener("close", handleClose);
+      };
+    } else {
+      setConnectionInfoMessage("Unable to connect to the game server.");
+    }
   }, []);
 
   const handleError = () => {

@@ -1,4 +1,6 @@
 const WebSocket = require("ws");
+require("dotenv").config();
+
 let wordList;
 try {
   wordList = require("./data/wordList.json");
@@ -7,7 +9,7 @@ try {
   return;
 }
 
-const port = 3001;
+const port = process.env.WS_SERVER_PORT || 3001;
 const server = new WebSocket.Server({ port: port });
 console.log(`WebSocket server listening on port ${port}`);
 
