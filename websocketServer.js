@@ -323,13 +323,13 @@ const handleConnection = (player) => {
     sendMessageToPlayer(player, "backgroundColorUpdate", "blue");
   } else {
     if (practiceMode) {
-      sendMessageToPlayer(player, "backgroundColorUpdate", "blue");
       startNewRound();
       practiceMode = false;
     } else if (joinedPlayers.length === 1) {
       startPracticeMode(player);
     }
     if (roundIntermission) {
+      sendMessageToPlayer(player, "backgroundColorUpdate", "blue");
       sendMessageToPlayer(player, "drawerInfoUpdate", roundStartMessage);
     }
   }
