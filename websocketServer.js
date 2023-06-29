@@ -26,6 +26,7 @@ const roundDuration = 60;
 let roundTimeLeft;
 let roundTimerInterval;
 let roundIntermission = false;
+let wordGuessed = false;
 let practiceMode = false;
 let cancelRound = false;
 const roundStartMessage = "A new round will start shortly.";
@@ -133,6 +134,7 @@ const handleNewLineData = (sender, lineData) => {
 };
 
 const handleCorrectGuess = (guesser) => {
+  wordGuessed = true;
   sendChatMessageToPlayers(
     `${guesser} guessed the word! It was "${currentWord.toLowerCase()}".`,
     null,
@@ -176,6 +178,7 @@ const startNewRound = async () => {
   sendMessageToPlayers("drawerInfoUpdate", roundStartMessage);
   await new Promise((resolve) => setTimeout(resolve, 3000));
   roundIntermission = false;
+  wordGuessed = false;
   if (cancelRound) {
     cancelRound = false;
     return;
@@ -332,7 +335,13 @@ const handleConnection = (player) => {
     sendMessageToPlayer(player, "drawerInfoUpdate", roundStartMessage);
   }
   if (!practiceMode) {
-    sendMessageToPlayer(player, "backgroundColorUpdate", "blue");
+    let bgColor = "blue";
+    if (wordGuessed) {
+      bgColor = "green";
+    } else if (roundIntermission && roundTimeLeft === 0) {
+      bgColor = "red";
+    }
+    sendMessageToPlayer(player, "backgroundColorUpdate", bgColor);
   }
 
   if (lineHistory.length > 0) {
