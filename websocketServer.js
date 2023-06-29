@@ -319,22 +319,22 @@ const handleConnection = (player) => {
   console.log(`${player.name} has connected to the WebSocket server.`);
   sendMessageToPlayers("playerListUpdate", getPlayerNameList());
   sendChatMessageToPlayers(`${player.name} has joined.`, null, "gray");
-  if (currentDrawer && !practiceMode && !roundIntermission) {
+
+  if (practiceMode) {
+    startNewRound();
+    practiceMode = false;
+  } else if (!currentDrawer) {
+    startPracticeMode(player);
+  } else if (!roundIntermission) {
     sendMessageToPlayer(player, "drawerInfoUpdate", getDrawerInfoMessage());
     sendMessageToPlayer(player, "roundTimeUpdate", roundTimeLeft);
-    sendMessageToPlayer(player, "backgroundColorUpdate", "blue");
   } else {
-    if (practiceMode) {
-      startNewRound();
-      practiceMode = false;
-    } else if (joinedPlayers.length === 1) {
-      startPracticeMode(player);
-    }
-    if (roundIntermission) {
-      sendMessageToPlayer(player, "backgroundColorUpdate", "blue");
-      sendMessageToPlayer(player, "drawerInfoUpdate", roundStartMessage);
-    }
+    sendMessageToPlayer(player, "drawerInfoUpdate", roundStartMessage);
   }
+  if (!practiceMode) {
+    sendMessageToPlayer(player, "backgroundColorUpdate", "blue");
+  }
+
   if (lineHistory.length > 0) {
     sendMessageToPlayer(player, "lineHistoryWithRedraw", lineHistory);
   }
