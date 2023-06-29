@@ -239,6 +239,9 @@ const decrementRoundTimer = () => {
   if (!roundIntermission) {
     roundTimeLeft--;
   }
+  if (!roundIntermission) {
+    sendMessageToPlayers("roundTimeUpdate", roundTimeLeft);
+  }
   if (roundTimeLeft < 1) {
     clearInterval(roundTimerInterval);
     console.log("Nobody managed to guess the word. Starting a new round.");
@@ -252,7 +255,6 @@ const decrementRoundTimer = () => {
     sendMessageToPlayers("backgroundColorUpdate", "red");
     startNewRound();
   }
-  sendMessageToPlayers("roundTimeUpdate", roundTimeLeft);
 };
 
 const getRandomNumber = (max) => {
