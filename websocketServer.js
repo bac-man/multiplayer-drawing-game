@@ -108,10 +108,12 @@ const selectNewDrawer = (newDrawer = null) => {
 };
 
 const handleNewLineData = (sender, lineData) => {
-  if (sender.ws !== currentDrawer.ws) {
-    return;
-  }
-  if (!lineData || !lineData.length || lineData.length == 0) {
+  if (
+    sender.ws !== currentDrawer.ws ||
+    !lineData?.length ||
+    lineData.length == 0 ||
+    typeof lineData === "string"
+  ) {
     return;
   }
   for (const point of lineData) {
