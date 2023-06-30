@@ -66,7 +66,7 @@ const selectNewWord = (previousWord = null) => {
   }
   let newWordSelected = false;
   while (!newWordSelected) {
-    const selectedWord = wordList[getRandomNumber(wordList.length - 1)];
+    const selectedWord = wordList[Math.floor(Math.random() * wordList.length)];
     if (!usedWords.includes(selectedWord) && selectedWord !== previousWord) {
       currentWord = selectedWord;
       newWordSelected = true;
@@ -260,10 +260,6 @@ const decrementRoundTimer = () => {
     sendMessageToPlayers("backgroundColorUpdate", "red");
     startNewRound();
   }
-};
-
-const getRandomNumber = (max) => {
-  return Math.floor(Math.random() * (max + 1));
 };
 
 const getPlayerNameList = () => {
