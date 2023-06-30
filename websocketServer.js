@@ -177,6 +177,7 @@ const handleChatMessage = (sender, text) => {
 
 const startNewRound = async () => {
   roundIntermission = true;
+  clearInterval(roundTimerInterval);
   sendMessageToPlayers("drawerInfoUpdate", roundStartMessage);
   await new Promise((resolve) => setTimeout(resolve, 3000));
   roundIntermission = false;
@@ -209,9 +210,6 @@ const startNewRound = async () => {
     // Clear all players' canvases
     sendMessageToPlayers("lineHistoryWithRedraw", lineHistory);
   }
-  if (roundTimerInterval) {
-    clearInterval(roundTimerInterval);
-  }
   roundTimeLeft = roundDuration;
   sendMessageToPlayers("roundTimeUpdate", roundTimeLeft);
   roundTimerInterval = setInterval(decrementRoundTimer, 1000);
@@ -241,14 +239,9 @@ const startPracticeMode = (player) => {
 };
 
 const decrementRoundTimer = () => {
-  if (!roundIntermission) {
-    roundTimeLeft--;
-  }
-  if (!roundIntermission) {
-    sendMessageToPlayers("roundTimeUpdate", roundTimeLeft);
-  }
+  roundTimeLeft--;
+  sendMessageToPlayers("roundTimeUpdate", roundTimeLeft);
   if (roundTimeLeft < 1) {
-    clearInterval(roundTimerInterval);
     console.log("Nobody managed to guess the word. Starting a new round.");
     if (currentWord) {
       sendChatMessageToPlayers(
