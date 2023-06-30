@@ -82,12 +82,12 @@ const selectNewDrawer = (newDrawer = null) => {
     currentDrawer = newDrawer;
   } else {
     let newDrawerSelected = false;
-    for (const joinedPlayer of joinedPlayers) {
+    for (const player of joinedPlayers) {
       if (
-        !previousDrawers.includes(joinedPlayer) &&
-        !playersJoinedDuringRound.includes(joinedPlayer)
+        !previousDrawers.includes(player) &&
+        !playersJoinedDuringRound.includes(player)
       ) {
-        currentDrawer = joinedPlayer;
+        currentDrawer = player;
         newDrawerSelected = true;
         break;
       }
