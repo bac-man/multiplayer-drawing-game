@@ -11,7 +11,7 @@ try {
 
 const port = process.env.WS_SERVER_PORT || 3001;
 const server = new WebSocket.Server({ port: port });
-console.log(`WebSocket server listening on port ${port}`);
+console.log(`\nWebSocket server listening on port ${port}.`);
 
 const joinedPlayers = [];
 let lineHistory = [];
