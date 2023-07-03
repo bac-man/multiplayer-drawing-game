@@ -2,6 +2,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const interfaces = require("os").networkInterfaces();
 const Dotenv = require("dotenv-webpack");
 const webpack = require("webpack");
+require("dotenv").config();
 
 const getIPAddress = () => {
   for (const deviceName in interfaces) {
@@ -51,7 +52,7 @@ module.exports = {
     ],
   },
   devServer: {
-    port: "3000",
+    port: process.env.FRONT_END_SERVER_PORT || 3000,
     open: true,
   },
   resolve: {
