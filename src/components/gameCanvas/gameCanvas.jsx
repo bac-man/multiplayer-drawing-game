@@ -11,21 +11,20 @@ const GameCanvas = ({
   const baselineWidth = 1280;
   const [lineStarted, setLineStarted] = useState(false);
   const [currentLinePoints, setCurrentLinePoints] = useState([]);
-  const redrawThrottling = useRef(false);
-
+  const resizeThrottlingRef = useRef(false);
   const resizeObserver = new ResizeObserver(() => {
     updateDimensions();
   });
 
   useEffect(() => {
-    canvasRef.current.addEventListener("redraw", redraw);
-    canvasRef.current.addEventListener("newLine", handleNewLine);
-    updateDimensions();
-    resizeObserver.observe(canvasRef.current);
+    const canvas = canvasRef.current;
+    canvas.addEventListener("redraw", redraw);
+    canvas.addEventListener("newLine", handleNewLine);
+    resizeObserver.observe(canvas);
     return () => {
-      canvasRef.current.removeEventListener("redraw", redraw);
-      canvasRef.current.removeEventListener("newLine", handleNewLine);
-      resizeObserver.unobserve(canvasRef.current);
+      canvas.removeEventListener("redraw", redraw);
+      canvas.removeEventListener("newLine", handleNewLine);
+      resizeObserver.unobserve(canvas);
     };
   }, []);
 
@@ -41,13 +40,13 @@ const GameCanvas = ({
   };
 
   const updateDimensions = () => {
-    if (!redrawThrottling.current) {
-      redrawThrottling.current = true;
+    if (!resizeThrottlingRef.current) {
+      resizeThrottlingRef.current = true;
       setTimeout(() => {
         canvasRef.current.width = canvasRef.current.clientWidth;
         canvasRef.current.height = canvasRef.current.clientHeight;
         redraw();
-        redrawThrottling.current = false;
+        resizeThrottlingRef.current = false;
       }, 250);
     }
   };
