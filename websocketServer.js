@@ -28,7 +28,7 @@ let roundTimerInterval;
 let roundIntermission = false;
 let wordGuessed = false;
 let practiceMode = false;
-let cancelRound = false;
+let roundCanceled = false;
 let roundIntermissionTimeout;
 let resolveRoundIntermissionPromise;
 
@@ -178,8 +178,8 @@ const handleChatMessage = (sender, text) => {
   }
 };
 
-const cancelStartingRound = () => {
-  cancelRound = true;
+const cancelRoundStart = () => {
+  roundCanceled = true;
   clearTimeout(roundIntermissionTimeout);
   resolveRoundIntermissionPromise();
 };
@@ -197,8 +197,8 @@ const startNewRound = async () => {
   });
   roundIntermission = false;
   wordGuessed = false;
-  if (cancelRound) {
-    cancelRound = false;
+  if (roundCanceled) {
+    roundCanceled = false;
     return;
   }
   let previousWord;
@@ -296,7 +296,7 @@ const handleClose = (player) => {
   }
   if (joinedPlayers.length === 1) {
     if (roundIntermission) {
-      cancelStartingRound();
+      cancelRoundStart();
     }
     startPracticeMode(joinedPlayers[0]);
   } else if (joinedPlayers.length === 0) {
