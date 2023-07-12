@@ -28,3 +28,7 @@ For example, to change the WebSocket server port to 3002 and the front end serve
 WS_SERVER_PORT=3002
 FRONT_END_SERVER_PORT=3003
 ```
+
+### Using a custom word list
+
+If you wish to use a custom word list, create a file named `customWordList.json` in the `/data` directory. Add an array containing the desired words to this file.
