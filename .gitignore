@@ -6,3 +6,6 @@
 
 # environment variables
 .env
+
+# custom word list
+/data/customWordList.json

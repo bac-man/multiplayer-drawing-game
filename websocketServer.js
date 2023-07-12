@@ -3,10 +3,17 @@ require("dotenv").config();
 
 let wordList;
 try {
-  wordList = require("./data/wordList.json");
+  wordList = require("./data/customWordList.json");
 } catch (e) {
-  console.log("Unable to find word list. Exiting.");
-  return;
+  console.log("Custom word list not found.");
+}
+if (!wordList || !wordList.length || wordList.length == 0) {
+  try {
+    wordList = require("./data/wordList.json");
+  } catch (e) {
+    console.log("Unable to find word list. Exiting.");
+    return;
+  }
 }
 
 const port = process.env.WS_SERVER_PORT || 3001;
