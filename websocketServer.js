@@ -286,6 +286,9 @@ const getPlayerNameList = () => {
 };
 
 const handleNameChangeRequest = (player, requestedName) => {
+  if (!requestedName.trim()) {
+    return;
+  }
   let nameAvailable = true;
   for (const joinedPlayer of joinedPlayers) {
     if (joinedPlayer.name.toLowerCase() === requestedName.toLowerCase()) {

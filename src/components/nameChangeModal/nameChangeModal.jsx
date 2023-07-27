@@ -4,7 +4,7 @@ import style from "./nameChangeModal.module.scss";
 const NameChangeModal = ({ isOpen, setIsOpen, requestNameChange }) => {
   const nameFieldRef = useRef();
   const confirmRequest = () => {
-    requestNameChange(nameFieldRef.current.value);
+    requestNameChange(nameFieldRef.current.value.trim());
     setIsOpen(false);
   };
   return (
@@ -15,13 +15,21 @@ const NameChangeModal = ({ isOpen, setIsOpen, requestNameChange }) => {
           <input
             ref={nameFieldRef}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
+              if (e.key === "Enter" && nameFieldRef.current.value.trim()) {
                 confirmRequest();
               }
             }}
           />
           <div className={style.buttons}>
-            <button onClick={confirmRequest}>OK</button>
+            <button
+              onClick={() => {
+                if (nameFieldRef.current.value.trim()) {
+                  confirmRequest();
+                }
+              }}
+            >
+              OK
+            </button>
             <button
               onClick={() => {
                 setIsOpen(false);
