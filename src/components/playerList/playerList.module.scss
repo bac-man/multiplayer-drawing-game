@@ -1,7 +1,9 @@
 @import "../../style/variables.scss";
 
 .playerList {
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing;
   ul {
     height: 100%;
     list-style: none;
@@ -13,5 +15,8 @@
       color: rgb(255, 255, 255);
       font-size: 1.25rem;
     }
+  }
+  button {
+    border-radius: $border-radius;
   }
 }

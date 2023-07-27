@@ -285,6 +285,24 @@ const getPlayerNameList = () => {
   return names;
 };
 
+const handleNameChangeRequest = (player, requestedName) => {
+  let nameAvailable = true;
+  for (const joinedPlayer of joinedPlayers) {
+    if (joinedPlayer.name.toLowerCase() === requestedName.toLowerCase()) {
+      nameAvailable = false;
+      break;
+    }
+  }
+  if (nameAvailable) {
+    sendChatMessageToPlayers(
+      `${player.name} changed their name to ${requestedName}.`
+    );
+    player.name = requestedName;
+    sendMessageToPlayers("playerListUpdate", getPlayerNameList());
+    sendMessageToPlayers("drawerInfoUpdate", getDrawerInfoMessage(), true);
+  }
+};
+
 const handleClose = (player) => {
   console.log(`${player.name} has disconnected from the WebSocket server.`);
   let leaveMessage = `${player.name} has left.`;
@@ -373,6 +391,9 @@ const handleMessage = (data, player) => {
     return;
   }
   switch (parsedData?.type) {
+    case "nameChangeRequest":
+      handleNameChangeRequest(player, parsedData.data);
+      break;
     case "newLineData":
       handleNewLineData(player, parsedData.data);
       break;

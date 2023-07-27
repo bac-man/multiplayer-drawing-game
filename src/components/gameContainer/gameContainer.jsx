@@ -6,6 +6,7 @@ import BrushOptions from "../brushOptions/brushOptions";
 import style from "./gameContainer.module.scss";
 import PlayerList from "../playerList/playerList";
 import Tabs from "../tabs/tabs";
+import NameChangeModal from "../nameChangeModal/nameChangeModal";
 
 const GameContainer = () => {
   const [brushStyle, setBrushStyle] = useState({});
@@ -21,6 +22,7 @@ const GameContainer = () => {
   // Update the messages and player name list states via refs to avoid missing entries
   // when multiple updates occur in a short timespan (state updates are not synchronous/instant)
   const [playerNames, setPlayerNames] = useState([]);
+  const [nameChangeModalOpen, setNameChangeModalOpen] = useState(false);
   const messagesRef = useRef([]);
   const playerNamesRef = useRef([]);
   const lineHistoryRef = useRef([]);
@@ -152,6 +154,12 @@ const GameContainer = () => {
     setPlayerNames([...playerNamesRef.current]);
   };
 
+  const requestNameChange = (newName) => {
+    wsRef.current.send(
+      JSON.stringify({ type: "nameChangeRequest", data: newName })
+    );
+  };
+
   return (
     <div className={style.gameContainer}>
       <div className={`${style.background} ${style[backgroundColorClass]}`}>
@@ -181,8 +189,17 @@ const GameContainer = () => {
             tabButtonText={"✏️"}
             enabledOnlyWhenDrawer={true}
           />
-          <PlayerList playerNames={playerNames} tabButtonText={"👥"} />
+          <PlayerList
+            playerNames={playerNames}
+            setNameChangeModalOpen={setNameChangeModalOpen}
+            tabButtonText={"👥"}
+          />
         </Tabs>
+        <NameChangeModal
+          isOpen={nameChangeModalOpen}
+          setIsOpen={setNameChangeModalOpen}
+          requestNameChange={requestNameChange}
+        />
       </div>
       <div
         className={`${style.connectionInfoMessage} ${
