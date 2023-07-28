@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import style from "./nameChangeModal.module.scss";
 
 const NameChangeModal = ({
+  nameMaxLength,
   isOpen,
   setIsOpen,
   requestNameChange,
@@ -48,6 +49,8 @@ const NameChangeModal = ({
           {status.message && <span>{status.message}</span>}
           <input
             ref={nameFieldRef}
+            type={"text"}
+            maxLength={nameMaxLength}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !inputsDisabled) {
                 attemptNameChangeRequest();

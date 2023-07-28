@@ -42,6 +42,7 @@ let resolveRoundIntermissionPromise;
 const roundStartMessage = "A new round will start shortly.";
 const chatMessageMaxLength = 50;
 const maxBrushSize = 100;
+const playerNameMaxLength = 20;
 const brushStyle = {
   lineWidth: parseInt(maxBrushSize / 3),
   lineCap: "round",
@@ -368,6 +369,7 @@ const handleConnection = (player) => {
   sendMessageToPlayer(player, "inputValues", {
     brushStyle: brushStyle,
     chatMessageMaxLength: chatMessageMaxLength,
+    playerNameMaxLength: playerNameMaxLength,
   });
   console.log(`${player.name} has connected to the WebSocket server.`);
   sendMessageToPlayers("playerListUpdate", getPlayerNameList());

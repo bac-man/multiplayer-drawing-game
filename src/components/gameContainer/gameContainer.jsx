@@ -11,6 +11,7 @@ import NameChangeModal from "../nameChangeModal/nameChangeModal";
 const GameContainer = () => {
   const [brushStyle, setBrushStyle] = useState({});
   const [chatMessageMaxLength, setChatMessageMaxLength] = useState(0);
+  const [playerNameMaxLength, setPlayerNameMaxLength] = useState(0);
   const [connectionInfoMessage, setConnectionInfoMessage] = useState(
     "Connecting to the game server..."
   );
@@ -87,6 +88,7 @@ const GameContainer = () => {
       case "inputValues":
         setBrushStyle(messageValue.brushStyle);
         setChatMessageMaxLength(messageValue.chatMessageMaxLength);
+        setPlayerNameMaxLength(messageValue.playerNameMaxLength);
         break;
       case "lineHistory":
         lineHistoryRef.current = messageValue;
@@ -200,6 +202,7 @@ const GameContainer = () => {
           />
         </Tabs>
         <NameChangeModal
+          nameMaxLength={playerNameMaxLength}
           isOpen={nameChangeModalOpen}
           setIsOpen={setNameChangeModalOpen}
           requestNameChange={requestNameChange}
