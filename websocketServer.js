@@ -340,6 +340,11 @@ const handleClose = (player) => {
     if (roundTimerInterval) {
       clearInterval(roundTimerInterval);
     }
+    chatHistory.push({
+      sender: null,
+      text: leaveMessage,
+      className: leaveMessageColor,
+    });
     return;
   }
   if (player.ws === currentDrawer.ws && !roundIntermission) {
