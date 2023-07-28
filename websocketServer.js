@@ -298,7 +298,9 @@ const handleNameChangeRequest = (player, requestedName) => {
   }
   if (nameAvailable) {
     sendChatMessageToPlayers(
-      `${player.name} changed their name to ${requestedName}.`
+      `${player.name} changed their name to ${requestedName}.`,
+      null,
+      "gray"
     );
     player.name = requestedName;
     sendMessageToPlayers("playerListUpdate", getPlayerNameList());
