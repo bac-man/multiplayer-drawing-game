@@ -303,6 +303,15 @@ const handleNameChangeRequest = (player, requestedName) => {
     player.name = requestedName;
     sendMessageToPlayers("playerListUpdate", getPlayerNameList());
     sendMessageToPlayers("drawerInfoUpdate", getDrawerInfoMessage(), true);
+    sendMessageToPlayer(player, "nameChangeStatus", {
+      success: true,
+      message: "Your name has been changed.",
+    });
+  } else {
+    sendMessageToPlayer(player, "nameChangeStatus", {
+      success: false,
+      message: "That name is unavailable. Please choose another name.",
+    });
   }
 };
 

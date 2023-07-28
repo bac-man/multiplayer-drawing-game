@@ -19,6 +19,7 @@ const GameContainer = () => {
   const [drawerInfo, setDrawerInfo] = useState("");
   const [timeLeft, setTimeLeft] = useState("∞");
   const [messages, setMessages] = useState([]);
+  const [nameChangeStatus, setNameChangeStatus] = useState({});
   // Update the messages and player name list states via refs to avoid missing entries
   // when multiple updates occur in a short timespan (state updates are not synchronous/instant)
   const [playerNames, setPlayerNames] = useState([]);
@@ -93,6 +94,9 @@ const GameContainer = () => {
       case "lineHistoryWithRedraw":
         lineHistoryRef.current = messageValue;
         canvasRef.current.dispatchEvent(new CustomEvent("redraw"));
+        break;
+      case "nameChangeStatus":
+        setNameChangeStatus(messageValue);
         break;
       case "newLineData":
         canvasRef.current.dispatchEvent(
@@ -199,6 +203,8 @@ const GameContainer = () => {
           isOpen={nameChangeModalOpen}
           setIsOpen={setNameChangeModalOpen}
           requestNameChange={requestNameChange}
+          status={nameChangeStatus}
+          setStatus={setNameChangeStatus}
         />
       </div>
       <div
