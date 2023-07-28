@@ -291,10 +291,14 @@ const handleNameChangeRequest = (player, requestedName) => {
     return;
   }
   let nameAvailable = true;
-  for (const joinedPlayer of joinedPlayers) {
-    if (joinedPlayer.name.toLowerCase() === requestedName.toLowerCase()) {
-      nameAvailable = false;
-      break;
+  if (requestedName.length > playerNameMaxLength) {
+    nameAvailable = false;
+  } else {
+    for (const joinedPlayer of joinedPlayers) {
+      if (joinedPlayer.name.toLowerCase() === requestedName.toLowerCase()) {
+        nameAvailable = false;
+        break;
+      }
     }
   }
   if (nameAvailable) {
