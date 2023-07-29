@@ -12,8 +12,13 @@
   gap: $spacing;
   align-items: center;
   color: rgb(255, 255, 255);
-
   background-color: rgba(0, 0, 0, 0.5);
+  opacity: 1;
+  transition: opacity 500ms;
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
   input {
     padding: 0.5rem;
   }

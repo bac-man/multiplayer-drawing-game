@@ -42,36 +42,29 @@ const NameChangeModal = ({
   }, [status]);
 
   return (
-    <>
-      {isOpen && (
-        <div className={style.modal}>
-          <span>Enter your new name</span>
-          {status.message && <span>{status.message}</span>}
-          <input
-            ref={nameFieldRef}
-            type={"text"}
-            maxLength={nameMaxLength}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !inputsDisabled) {
-                attemptNameChangeRequest();
-              }
-            }}
-            disabled={inputsDisabled}
-          />
-          <div className={style.buttons}>
-            <button
-              onClick={attemptNameChangeRequest}
-              disabled={inputsDisabled}
-            >
-              OK
-            </button>
-            <button onClick={close} disabled={inputsDisabled}>
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-    </>
+    <div className={`${style.modal} ${isOpen ? "" : style.hidden}`}>
+      <span>Enter your new name</span>
+      {status.message && <span>{status.message}</span>}
+      <input
+        ref={nameFieldRef}
+        type={"text"}
+        maxLength={nameMaxLength}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !inputsDisabled) {
+            attemptNameChangeRequest();
+          }
+        }}
+        disabled={inputsDisabled}
+      />
+      <div className={style.buttons}>
+        <button onClick={attemptNameChangeRequest} disabled={inputsDisabled}>
+          OK
+        </button>
+        <button onClick={close} disabled={inputsDisabled}>
+          Close
+        </button>
+      </div>
+    </div>
   );
 };
 
