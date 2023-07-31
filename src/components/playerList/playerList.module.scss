@@ -1,9 +1,6 @@
 @import "../../style/variables.scss";
 
 .playerList {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing;
   ul {
     height: 100%;
     list-style: none;

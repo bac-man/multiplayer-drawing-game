@@ -42,33 +42,35 @@ const BrushOptions = ({
 
   return (
     <div className={style.brushOptions}>
-      <div className={style.field}>
-        <label htmlFor={"brushColor"}>Brush color</label>
-        <input
-          type={"color"}
-          name={"brushColor"}
-          value={color}
-          onChange={(e) => {
-            setColor(e.target.value);
-          }}
-        />
+      <div className={style.fields}>
+        <div className={style.field}>
+          <label htmlFor={"brushColor"}>Brush color</label>
+          <input
+            type={"color"}
+            name={"brushColor"}
+            value={color}
+            onChange={(e) => {
+              setColor(e.target.value);
+            }}
+          />
+        </div>
+        <div className={style.field}>
+          <label htmlFor={"brushSize"}>Brush size</label>
+          <input
+            type={"range"}
+            name={"brushSize"}
+            min={1}
+            max={maxBrushSize}
+            value={size}
+            onChange={(e) => {
+              setSize(e.target.value);
+            }}
+          />
+        </div>
+        <button disabled={!drawingAllowed} onClick={undoLine}>
+          Undo
+        </button>
       </div>
-      <div className={style.field}>
-        <label htmlFor={"brushSize"}>Brush size</label>
-        <input
-          type={"range"}
-          name={"brushSize"}
-          min={1}
-          max={maxBrushSize}
-          value={size}
-          onChange={(e) => {
-            setSize(e.target.value);
-          }}
-        />
-      </div>
-      <button disabled={!drawingAllowed} onClick={undoLine}>
-        Undo
-      </button>
     </div>
   );
 };
