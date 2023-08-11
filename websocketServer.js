@@ -32,12 +32,17 @@ let previousDrawers = [];
 const roundDuration = 60;
 let roundTimeLeft;
 let roundTimerInterval;
-let roundIntermission = false;
 let wordGuessed = false;
-let practiceMode = false;
 let roundCanceled = false;
 let roundIntermissionTimeout;
 let resolveRoundIntermissionPromise;
+const states = Object.freeze({
+  PRACTICE_MODE: 1,
+  ROUND_IN_PROGRESS: 2,
+  ROUND_INTERMISSION: 3,
+  NO_PLAYERS: 4,
+});
+let state = states.NO_PLAYERS;
 
 const roundStartMessage = "A new round will start shortly.";
 const chatMessageMaxLength = 50;
@@ -176,9 +181,9 @@ const handleChatMessage = (sender, text) => {
     return;
   }
   if (
+    state === states.ROUND_IN_PROGRESS &&
     sender.ws !== currentDrawer.ws &&
-    text.toLowerCase() === currentWord.toLowerCase() &&
-    !roundIntermission
+    text.toLowerCase() === currentWord.toLowerCase()
   ) {
     handleCorrectGuess(sender.name);
   } else {
@@ -193,28 +198,28 @@ const cancelRoundStart = () => {
 };
 
 const startNewRound = async () => {
-  if (roundIntermission) {
+  if (state === states.ROUND_INTERMISSION) {
     return;
   }
-  roundIntermission = true;
+  state = states.ROUND_INTERMISSION;
   clearInterval(roundTimerInterval);
   sendMessageToPlayers("drawerInfoUpdate", roundStartMessage);
   await new Promise((resolve) => {
     resolveRoundIntermissionPromise = resolve;
     roundIntermissionTimeout = setTimeout(resolve, 3000);
   });
-  roundIntermission = false;
-  wordGuessed = false;
   if (roundCanceled) {
     roundCanceled = false;
     return;
   }
+  state = states.ROUND_IN_PROGRESS;
+  wordGuessed = false;
   let previousWord;
   if (currentWord) {
     previousWord = currentWord;
     usedWords.push(previousWord);
   }
-  if (currentDrawer && !practiceMode) {
+  if (currentDrawer) {
     const previousDrawer = currentDrawer;
     previousDrawers.push(previousDrawer);
     sendMessageToPlayer(previousDrawer, "drawerStatusChange", false);
@@ -242,7 +247,7 @@ const startNewRound = async () => {
 };
 
 const startPracticeMode = (player) => {
-  practiceMode = true;
+  state = states.PRACTICE_MODE;
   if (roundTimerInterval) {
     clearInterval(roundTimerInterval);
   }
@@ -326,6 +331,7 @@ const handleClose = (player) => {
   console.log(`${player.name} has disconnected from the WebSocket server.`);
   let leaveMessage = `${player.name} has left.`;
   let leaveMessageColor = "gray";
+  sendChatMessageToPlayers(leaveMessage, null, leaveMessageColor);
   joinedPlayers.forEach((joinedPlayer, index) => {
     if (joinedPlayer.ws === player.ws) {
       joinedPlayers.splice(index, 1);
@@ -336,14 +342,14 @@ const handleClose = (player) => {
     currentWord = null;
     previousDrawers = [];
     usedWords = [];
-    practiceMode = false;
   }
   if (joinedPlayers.length === 1) {
-    if (roundIntermission) {
+    if (state === states.ROUND_INTERMISSION) {
       cancelRoundStart();
     }
     startPracticeMode(joinedPlayers[0]);
   } else if (joinedPlayers.length === 0) {
+    state = states.NO_PLAYERS;
     if (roundTimerInterval) {
       clearInterval(roundTimerInterval);
     }
@@ -354,16 +360,16 @@ const handleClose = (player) => {
     });
     return;
   }
-  if (player.ws === currentDrawer.ws && !roundIntermission) {
-    console.log("The drawer has left. Starting a new round.");
-    startNewRound();
+  if (player.ws === currentDrawer.ws && state !== states.ROUND_INTERMISSION) {
+    const drawerLeaveMessage = "The drawer has left. Starting a new round.";
+    console.log(drawerLeaveMessage);
     if (currentDrawer) {
-      leaveMessage += ` They were the drawer, so a new round will be started.`;
       leaveMessageColor = "blue";
+      sendChatMessageToPlayers(drawerLeaveMessage, null, leaveMessageColor);
     }
+    startNewRound();
   }
   sendMessageToPlayers("playerListUpdate", getPlayerNameList());
-  sendChatMessageToPlayers(leaveMessage, null, leaveMessageColor);
 };
 
 const handleConnection = (player) => {
@@ -379,22 +385,27 @@ const handleConnection = (player) => {
   sendMessageToPlayers("playerListUpdate", getPlayerNameList());
   sendChatMessageToPlayers(`${player.name} has joined.`, null, "gray");
 
-  if (practiceMode) {
-    startNewRound();
-    practiceMode = false;
-  } else if (!currentDrawer) {
-    startPracticeMode(player);
-  } else if (!roundIntermission) {
-    sendMessageToPlayer(player, "drawerInfoUpdate", getDrawerInfoMessage());
-    sendMessageToPlayer(player, "roundTimeUpdate", roundTimeLeft);
-  } else {
-    sendMessageToPlayer(player, "drawerInfoUpdate", roundStartMessage);
+  switch (state) {
+    case states.NO_PLAYERS:
+      startPracticeMode(player);
+      break;
+    case states.PRACTICE_MODE:
+      startNewRound();
+      break;
+    case states.ROUND_IN_PROGRESS:
+      sendMessageToPlayer(player, "drawerInfoUpdate", getDrawerInfoMessage());
+      sendMessageToPlayer(player, "roundTimeUpdate", roundTimeLeft);
+      break;
+    case states.ROUND_INTERMISSION:
+      sendMessageToPlayer(player, "drawerInfoUpdate", roundStartMessage);
+      break;
   }
-  if (!practiceMode) {
+
+  if (state !== states.PRACTICE_MODE) {
     let bgColor = "blue";
     if (wordGuessed) {
       bgColor = "green";
-    } else if (roundIntermission && roundTimeLeft === 0) {
+    } else if (state === states.ROUND_INTERMISSION && roundTimeLeft === 0) {
       bgColor = "red";
     }
     sendMessageToPlayer(player, "backgroundColorUpdate", bgColor);
