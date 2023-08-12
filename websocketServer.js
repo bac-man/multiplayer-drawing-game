@@ -329,9 +329,7 @@ const handleNameChangeRequest = (player, requestedName) => {
 
 const handleClose = (player) => {
   console.log(`${player.name} has disconnected from the WebSocket server.`);
-  let leaveMessage = `${player.name} has left.`;
-  let leaveMessageColor = "gray";
-  sendChatMessageToPlayers(leaveMessage, null, leaveMessageColor);
+  sendChatMessageToPlayers(`${player.name} has left.`, null, "gray");
   joinedPlayers.forEach((joinedPlayer, index) => {
     if (joinedPlayer.ws === player.ws) {
       joinedPlayers.splice(index, 1);
@@ -353,19 +351,13 @@ const handleClose = (player) => {
     if (roundTimerInterval) {
       clearInterval(roundTimerInterval);
     }
-    chatHistory.push({
-      sender: null,
-      text: leaveMessage,
-      className: leaveMessageColor,
-    });
     return;
   }
   if (player.ws === currentDrawer.ws && state !== states.ROUND_INTERMISSION) {
     const drawerLeaveMessage = "The drawer has left. Starting a new round.";
     console.log(drawerLeaveMessage);
     if (currentDrawer) {
-      leaveMessageColor = "blue";
-      sendChatMessageToPlayers(drawerLeaveMessage, null, leaveMessageColor);
+      sendChatMessageToPlayers(drawerLeaveMessage, null, "blue");
     }
     startNewRound();
   }
