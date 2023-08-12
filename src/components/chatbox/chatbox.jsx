@@ -80,6 +80,7 @@ const Chatbox = ({ messages, sendChatMessage, chatMessageMaxLength }) => {
           ref={inputRef}
           type={"text"}
           maxLength={chatMessageMaxLength}
+          autoCapitalize={"on"}
           onKeyDown={(e) => {
             if (e.key == "Enter") {
               sendChatMessage(inputRef.current);

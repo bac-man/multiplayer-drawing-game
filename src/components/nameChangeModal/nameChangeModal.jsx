@@ -49,6 +49,7 @@ const NameChangeModal = ({
         ref={nameFieldRef}
         type={"text"}
         maxLength={nameMaxLength}
+        autoCapitalize={"on"}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !inputsDisabled) {
             attemptNameChangeRequest();
