@@ -93,9 +93,9 @@ const selectNewWord = (previousWord = null) => {
   }
 };
 
-const selectNewDrawer = (newDrawer = null) => {
-  if (newDrawer) {
-    currentDrawer = newDrawer;
+const selectNewDrawer = (practiceModeDrawer = null) => {
+  if (practiceModeDrawer) {
+    currentDrawer = practiceModeDrawer;
   } else {
     let newDrawerSelected = false;
     for (const player of joinedPlayers) {
@@ -114,12 +114,14 @@ const selectNewDrawer = (newDrawer = null) => {
     }
   }
   if (currentDrawer) {
-    console.log(`${currentDrawer.name} was chosen as the drawer.`);
-    sendChatMessageToPlayers(
-      `${currentDrawer.name} is now the drawer.`,
-      null,
-      "blue"
-    );
+    let message;
+    if (practiceModeDrawer) {
+      message = `${currentDrawer.name} is now practicing alone.`;
+    } else {
+      message = `${currentDrawer.name} is now the drawer.`;
+    }
+    console.log(message);
+    sendChatMessageToPlayers(message, null, "blue");
   }
 };
 
