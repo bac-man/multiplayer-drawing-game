@@ -200,8 +200,11 @@ const cancelRoundStart = () => {
 };
 
 const startNewRound = async () => {
+  let exitingPracticeMode = false;
   if (state === states.ROUND_INTERMISSION) {
     return;
+  } else if (state === states.PRACTICE_MODE) {
+    exitingPracticeMode = true;
   }
   state = states.ROUND_INTERMISSION;
   clearInterval(roundTimerInterval);
@@ -224,7 +227,9 @@ const startNewRound = async () => {
   if (currentDrawer) {
     const previousDrawer = currentDrawer;
     previousDrawers.push(previousDrawer);
-    sendMessageToPlayer(previousDrawer, "drawerStatusChange", false);
+    if (!exitingPracticeMode) {
+      sendMessageToPlayer(previousDrawer, "drawerStatusChange", false);
+    }
   }
   selectNewDrawer();
   selectNewWord(previousWord);
