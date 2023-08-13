@@ -26,23 +26,25 @@ const NameChangeModal = ({
     }
   };
 
-  const close = () => {
-    setIsOpen(false);
-    setStatus({ success: false, message: "" });
-  };
-
   useEffect(() => {
     if (status.success) {
       setInputsDisabled(true);
       setTimeout(() => {
-        close();
+        setIsOpen(false);
         setInputsDisabled(false);
       }, 2000);
     }
   }, [status]);
 
   return (
-    <div className={`${style.modal} ${isOpen ? "" : style.hidden}`}>
+    <div
+      className={`${style.modal} ${isOpen ? "" : style.hidden}`}
+      onTransitionEnd={(e) => {
+        if ([...e.target.classList].includes(style.hidden)) {
+          setStatus({ success: false, message: "" });
+        }
+      }}
+    >
       <span>Enter your new name</span>
       {status.message && <span>{status.message}</span>}
       <input
@@ -61,7 +63,7 @@ const NameChangeModal = ({
         <button onClick={attemptNameChangeRequest} disabled={inputsDisabled}>
           OK
         </button>
-        <button onClick={close} disabled={inputsDisabled}>
+        <button onClick={() => setIsOpen(false)} disabled={inputsDisabled}>
           Close
         </button>
       </div>
