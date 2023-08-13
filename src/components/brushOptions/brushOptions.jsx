@@ -56,16 +56,19 @@ const BrushOptions = ({
         </div>
         <div className={style.field}>
           <label htmlFor={"brushSize"}>Brush size</label>
-          <input
-            type={"range"}
-            name={"brushSize"}
-            min={1}
-            max={maxBrushSize}
-            value={size}
-            onChange={(e) => {
-              setSize(e.target.value);
-            }}
-          />
+          <div className={style.rangeInputContainer}>
+            <input
+              type={"range"}
+              name={"brushSize"}
+              min={1}
+              max={maxBrushSize}
+              value={size}
+              onChange={(e) => {
+                setSize(e.target.value);
+              }}
+            />
+            <span>{size}</span>
+          </div>
         </div>
         <button disabled={!drawingAllowed} onClick={undoLine}>
           Undo
