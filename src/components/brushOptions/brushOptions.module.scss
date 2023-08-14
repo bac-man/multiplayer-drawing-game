@@ -21,10 +21,14 @@
     .field {
       display: flex;
       align-items: center;
-      gap: 0.25rem;
+      gap: 1rem;
+      @include desktop-or-landscape() {
+        gap: 0.25rem;
+      }
       label {
+        flex: 0 0 25%;
         @include desktop-or-landscape() {
-          flex: 0 0 50%;
+          flex-basis: 50%;
         }
       }
       input {
