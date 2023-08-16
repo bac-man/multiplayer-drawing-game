@@ -21,6 +21,7 @@ const GameContainer = () => {
   const [timeLeft, setTimeLeft] = useState("∞");
   const [messages, setMessages] = useState([]);
   const [nameChangeStatus, setNameChangeStatus] = useState({});
+  const [undoButtonDisabled, setUndoButtonDisabled] = useState(true);
   // Update the messages and player name list states via refs to avoid missing entries
   // when multiple updates occur in a short timespan (state updates are not synchronous/instant)
   const [playerNames, setPlayerNames] = useState([]);
@@ -91,10 +92,10 @@ const GameContainer = () => {
         setPlayerNameMaxLength(messageValue.playerNameMaxLength);
         break;
       case "lineHistory":
-        lineHistoryRef.current = messageValue;
+        updateLineHistory(messageValue);
         break;
       case "lineHistoryWithRedraw":
-        lineHistoryRef.current = messageValue;
+        updateLineHistory(messageValue);
         canvasRef.current.dispatchEvent(new CustomEvent("redraw"));
         break;
       case "nameChangeStatus":
@@ -125,6 +126,11 @@ const GameContainer = () => {
         data: linePoints,
       })
     );
+  };
+
+  const updateLineHistory = (lineHistory) => {
+    lineHistoryRef.current = lineHistory;
+    setUndoButtonDisabled(lineHistory.length == 0);
   };
 
   const undoLine = () => {
@@ -192,6 +198,7 @@ const GameContainer = () => {
             setBrushStyle={setBrushStyle}
             drawingAllowed={drawingAllowed}
             undoLine={undoLine}
+            undoButtonDisabled={undoButtonDisabled}
             tabButtonText={"✏️"}
             enabledOnlyWhenDrawer={true}
           />

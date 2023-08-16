@@ -6,6 +6,7 @@ const BrushOptions = ({
   setBrushStyle,
   drawingAllowed,
   undoLine,
+  undoButtonDisabled,
 }) => {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [color, setColor] = useState("");
@@ -70,7 +71,7 @@ const BrushOptions = ({
             <span>{size}</span>
           </div>
         </div>
-        <button disabled={!drawingAllowed} onClick={undoLine}>
+        <button disabled={undoButtonDisabled} onClick={undoLine}>
           Undo
         </button>
       </div>
