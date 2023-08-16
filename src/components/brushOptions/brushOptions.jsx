@@ -4,11 +4,9 @@ import style from "./brushOptions.module.scss";
 const BrushOptions = ({
   brushStyle,
   setBrushStyle,
-  drawingAllowed,
   undoLine,
   undoButtonDisabled,
 }) => {
-  const [optionsVisible, setOptionsVisible] = useState(false);
   const [color, setColor] = useState("");
   const [size, setSize] = useState(1);
   const [maxBrushSize, setMaxBrushSize] = useState();
@@ -34,12 +32,6 @@ const BrushOptions = ({
       setBrushStyle(newBrushStyle);
     }
   }, [color, size]);
-
-  useEffect(() => {
-    if (!drawingAllowed && optionsVisible) {
-      setOptionsVisible(false);
-    }
-  }, [drawingAllowed]);
 
   return (
     <div className={style.brushOptions}>

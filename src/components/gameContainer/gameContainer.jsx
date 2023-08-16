@@ -196,7 +196,6 @@ const GameContainer = () => {
           <BrushOptions
             brushStyle={brushStyle}
             setBrushStyle={setBrushStyle}
-            drawingAllowed={drawingAllowed}
             undoLine={undoLine}
             undoButtonDisabled={undoButtonDisabled}
             tabButtonText={"✏️"}
