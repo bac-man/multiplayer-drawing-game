@@ -43,6 +43,7 @@ const NameChangeModal = ({
       onTransitionEnd={(e) => {
         if ([...e.target.classList].includes(style.hidden)) {
           setStatus({ success: false, message: defaultMessage });
+          nameFieldRef.current.value = "";
         }
       }}
     >
