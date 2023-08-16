@@ -208,6 +208,7 @@ const GameContainer = () => {
           requestNameChange={requestNameChange}
           status={nameChangeStatus}
           setStatus={setNameChangeStatus}
+          defaultMessage={"Enter your new name"}
         />
       </div>
       <div

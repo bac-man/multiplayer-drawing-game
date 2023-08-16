@@ -8,6 +8,7 @@ const NameChangeModal = ({
   requestNameChange,
   status,
   setStatus,
+  defaultMessage,
 }) => {
   const nameFieldRef = useRef();
   const [inputsDisabled, setInputsDisabled] = useState(false);
@@ -41,12 +42,11 @@ const NameChangeModal = ({
       className={`${style.modal} ${isOpen ? "" : style.hidden}`}
       onTransitionEnd={(e) => {
         if ([...e.target.classList].includes(style.hidden)) {
-          setStatus({ success: false, message: "" });
+          setStatus({ success: false, message: defaultMessage });
         }
       }}
     >
-      <span>Enter your new name</span>
-      {status.message && <span>{status.message}</span>}
+      <span>{status.message || defaultMessage}</span>
       <input
         ref={nameFieldRef}
         type={"text"}
