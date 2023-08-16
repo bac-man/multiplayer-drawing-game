@@ -17,6 +17,10 @@
     }
     button {
       border-radius: $border-radius;
+      &:disabled {
+        opacity: 0.25;
+        cursor: not-allowed;
+      }
     }
     .field {
       display: flex;
