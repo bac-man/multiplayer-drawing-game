@@ -70,7 +70,9 @@ const BrushOptions = ({
             <span>{size}</span>
           </div>
         </div>
-        <button onClick={undoLine}>Undo</button>
+        <button disabled={!drawingAllowed} onClick={undoLine}>
+          Undo
+        </button>
       </div>
     </div>
   );
