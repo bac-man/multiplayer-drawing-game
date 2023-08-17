@@ -42,11 +42,16 @@ const GameContainer = () => {
       ws.addEventListener("open", handleOpen);
       ws.addEventListener("message", handleMessage);
       ws.addEventListener("close", handleClose);
+      // Page leave confirmation prompt
+      window.onbeforeunload = () => {
+        return true;
+      };
       return () => {
         ws.removeEventListener("error", handleError);
         ws.removeEventListener("open", handleOpen);
         ws.removeEventListener("message", handleMessage);
         ws.removeEventListener("close", handleClose);
+        window.onbeforeunload = null;
       };
     } else {
       setConnectionInfoMessage("Unable to connect to the game server.");
