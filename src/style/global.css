@@ -45,6 +45,11 @@ button {
   padding: 0.5rem 1rem;
 }
 
+button:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
 .hidden {
   display: none;
 }
