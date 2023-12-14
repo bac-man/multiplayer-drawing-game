@@ -303,7 +303,13 @@ const handleNameChangeRequest = (player, requestedName) => {
     return;
   }
   let nameAvailable = true;
-  if (requestedName.length > playerNameMaxLength) {
+  if (
+    requestedName.length > playerNameMaxLength ||
+    requestedName
+      .toLowerCase()
+      .replace(/\s/g, "")
+      .match(/player[0-9]/)
+  ) {
     nameAvailable = false;
   } else {
     for (const joinedPlayer of joinedPlayers) {
