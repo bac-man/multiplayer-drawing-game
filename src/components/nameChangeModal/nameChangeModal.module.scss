@@ -1,4 +1,5 @@
 @import "../../style/variables.scss";
+@import "../../style/mixins.scss";
 
 .modal {
   position: absolute;
@@ -12,7 +13,6 @@
   align-items: center;
   gap: $spacing;
   padding: 2rem;
-  text-align: center;
   color: rgb(255, 255, 255);
   background-color: rgba(0, 0, 0, 0.5);
   opacity: 1;
@@ -31,5 +31,52 @@
   .buttons {
     display: flex;
     gap: $spacing;
+  }
+
+  .messageContainer {
+    position: relative;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    span {
+      text-align: left;
+    }
+    .icon {
+      position: relative;
+      flex: 0 0 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      .line {
+        width: 75%;
+        height: 0.25rem;
+        background-color: rgb(255, 255, 255);
+        border-radius: 1rem;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+      }
+      &.success {
+        .line {
+          background-color: rgb(0, 200, 0);
+          &:first-of-type {
+            transform: translate(-80%, 30%) rotate(45deg) scaleX(0.5);
+          }
+          &:last-of-type {
+            transform: translate(-45%, -50%) rotate(-60deg);
+          }
+        }
+      }
+      &.error {
+        .line {
+          background-color: rgb(200, 0, 0);
+          &:first-of-type {
+            transform: translate(-50%, -50%) rotate(45deg);
+          }
+          &:last-of-type {
+            transform: translate(-50%, -50%) rotate(-45deg);
+          }
+        }
+      }
+    }
   }
 }

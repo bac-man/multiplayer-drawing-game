@@ -23,7 +23,7 @@ const NameChangeModal = ({
       });
     } else {
       requestNameChange(nameFieldRef.current.value.trim());
-      setStatus({ success: false, message: "Please wait..." });
+      setStatus({ success: null, message: "Please wait..." });
     }
   };
 
@@ -42,12 +42,24 @@ const NameChangeModal = ({
       className={`${style.modal} ${isOpen ? "" : style.hidden}`}
       onTransitionEnd={(e) => {
         if ([...e.target.classList].includes(style.hidden)) {
-          setStatus({ success: false, message: defaultMessage });
+          setStatus({ success: null, message: defaultMessage });
           nameFieldRef.current.value = "";
         }
       }}
     >
-      <span>{status.message || defaultMessage}</span>
+      <div className={style.messageContainer}>
+        {status.success !== null && (
+          <div
+            className={`${style.icon} ${
+              status.success === true && style.success
+            } ${status.success === false && style.error}`}
+          >
+            <div className={style.line} />
+            <div className={style.line} />
+          </div>
+        )}
+        <span>{status.message || defaultMessage}</span>
+      </div>
       <input
         ref={nameFieldRef}
         type={"text"}

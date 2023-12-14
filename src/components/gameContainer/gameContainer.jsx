@@ -20,7 +20,7 @@ const GameContainer = () => {
   const [drawerInfo, setDrawerInfo] = useState("");
   const [timeLeft, setTimeLeft] = useState("∞");
   const [messages, setMessages] = useState([]);
-  const [nameChangeStatus, setNameChangeStatus] = useState({});
+  const [nameChangeStatus, setNameChangeStatus] = useState({ success: null });
   const [undoButtonDisabled, setUndoButtonDisabled] = useState(true);
   // Update the messages and player name list states via refs to avoid missing entries
   // when multiple updates occur in a short timespan (state updates are not synchronous/instant)
@@ -99,6 +99,7 @@ const GameContainer = () => {
         canvasRef.current.dispatchEvent(new CustomEvent("redraw"));
         break;
       case "nameChangeStatus":
+        console.log("here");
         setNameChangeStatus(messageValue);
         break;
       case "newLineData":
