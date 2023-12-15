@@ -48,7 +48,6 @@ let state = states.NO_PLAYERS;
 const roundStartMessage = "A new round will start shortly.";
 const chatMessageMaxLength = 50;
 const maxBrushSize = 100;
-const playerNameMaxLength = 20;
 const brushStyle = {
   lineWidth: parseInt(maxBrushSize / 3),
   lineCap: "round",
@@ -295,19 +294,9 @@ const getPlayerNameList = () => {
 };
 
 const handleNameChangeRequest = (player, requestedName) => {
-  if (!requestedName.trim()) {
-    return;
-  }
+  const validName = player.checkRequestedNameValidity(requestedName);
   let nameAvailable = true;
-  if (
-    requestedName.length > playerNameMaxLength ||
-    requestedName
-      .toLowerCase()
-      .replace(/\s/g, "")
-      .match(/player[0-9]/)
-  ) {
-    nameAvailable = false;
-  } else {
+  if (validName) {
     for (const joinedPlayer of joinedPlayers) {
       if (joinedPlayer.name.toLowerCase() === requestedName.toLowerCase()) {
         nameAvailable = false;
@@ -315,7 +304,7 @@ const handleNameChangeRequest = (player, requestedName) => {
       }
     }
   }
-  if (nameAvailable) {
+  if (validName && nameAvailable) {
     sendChatMessageToPlayers(
       `${player.name} changed their name to ${requestedName}.`,
       null,
@@ -380,7 +369,7 @@ const handleConnection = (player) => {
   player.sendMessage("inputValues", {
     brushStyle: brushStyle,
     chatMessageMaxLength: chatMessageMaxLength,
-    playerNameMaxLength: playerNameMaxLength,
+    playerNameMaxLength: player.nameMaxLength,
   });
   console.log(`${player.name} has connected to the WebSocket server.`);
   sendMessageToPlayers("playerListUpdate", getPlayerNameList());
