@@ -4,8 +4,8 @@ import style from "./brushOptions.module.scss";
 const BrushOptions = ({
   brushStyle,
   setBrushStyle,
-  undoLine,
-  undoButtonDisabled,
+  undoDrawing,
+  undoButtonsDisabled,
 }) => {
   const [color, setColor] = useState("");
   const [size, setSize] = useState(1);
@@ -63,9 +63,24 @@ const BrushOptions = ({
             <span>{size}</span>
           </div>
         </div>
-        <button disabled={undoButtonDisabled} onClick={undoLine}>
-          Undo
-        </button>
+        <div className={style.undoButtons}>
+          <button
+            disabled={undoButtonsDisabled}
+            onClick={() => {
+              undoDrawing(false);
+            }}
+          >
+            Undo
+          </button>
+          <button
+            disabled={undoButtonsDisabled}
+            onClick={() => {
+              undoDrawing(true);
+            }}
+          >
+            Clear all
+          </button>
+        </div>
       </div>
     </div>
   );

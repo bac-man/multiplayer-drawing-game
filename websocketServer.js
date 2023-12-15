@@ -164,11 +164,15 @@ const handleCorrectGuess = (guesser) => {
   startNewRound();
 };
 
-const handleUndoline = (sender) => {
+const handleUndoDrawing = (sender, clearAll) => {
   if (sender.ws !== currentDrawer.ws || lineHistory.length == 0) {
     return;
   }
-  lineHistory.pop();
+  if (clearAll) {
+    lineHistory = [];
+  } else {
+    lineHistory.pop();
+  }
   sendMessageToPlayers("lineHistoryWithRedraw", lineHistory);
 };
 
@@ -441,8 +445,8 @@ const handleMessage = (data, player) => {
     case "chatMessage":
       handleChatMessage(player, parsedData.data);
       break;
-    case "undoLine":
-      handleUndoline(player);
+    case "undoDrawing":
+      handleUndoDrawing(player, parsedData.data);
       break;
   }
 };

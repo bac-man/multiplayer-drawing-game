@@ -21,7 +21,7 @@ const GameContainer = () => {
   const [timeLeft, setTimeLeft] = useState("∞");
   const [messages, setMessages] = useState([]);
   const [nameChangeStatus, setNameChangeStatus] = useState({ success: null });
-  const [undoButtonDisabled, setUndoButtonDisabled] = useState(true);
+  const [undoButtonsDisabled, setUndoButtonsDisabled] = useState(true);
   // Update the messages and player name list states via refs to avoid missing entries
   // when multiple updates occur in a short timespan (state updates are not synchronous/instant)
   const [playerNames, setPlayerNames] = useState([]);
@@ -131,11 +131,11 @@ const GameContainer = () => {
 
   const updateLineHistory = (lineHistory) => {
     lineHistoryRef.current = lineHistory;
-    setUndoButtonDisabled(lineHistory.length == 0);
+    setUndoButtonsDisabled(lineHistory.length == 0);
   };
 
-  const undoLine = () => {
-    wsRef.current.send(JSON.stringify({ type: "undoLine" }));
+  const undoDrawing = (undoAll) => {
+    wsRef.current.send(JSON.stringify({ type: "undoDrawing", data: undoAll }));
   };
 
   const sendChatMessage = (inputElement) => {
@@ -197,8 +197,8 @@ const GameContainer = () => {
           <BrushOptions
             brushStyle={brushStyle}
             setBrushStyle={setBrushStyle}
-            undoLine={undoLine}
-            undoButtonDisabled={undoButtonDisabled}
+            undoDrawing={undoDrawing}
+            undoButtonsDisabled={undoButtonsDisabled}
             tabButtonText={"✏️"}
             enabledOnlyWhenDrawer={true}
           />
