@@ -1,4 +1,5 @@
 const WebSocket = require("ws");
+const { Player } = require("./player");
 require("dotenv").config();
 
 let wordList;
@@ -61,13 +62,9 @@ const sendMessageToPlayers = (type, value, excludeCurrentDrawer = false) => {
       !excludeCurrentDrawer ||
       (excludeCurrentDrawer && player.ws !== currentDrawer.ws)
     ) {
-      player?.ws?.send(JSON.stringify({ type: type, value: value }));
+      player.sendMessage(type, value);
     }
   });
-};
-
-const sendMessageToPlayer = (player, type, value) => {
-  player?.ws?.send(JSON.stringify({ type: type, value: value }));
 };
 
 const getDrawerInfoMessage = (playerIsDrawer = false) => {
@@ -144,7 +141,7 @@ const handleNewLineData = (sender, lineData) => {
       point.options.lineCap !== brushStyle.lineCap
     ) {
       // Remove the disallowed line from the drawer's canvas
-      sendMessageToPlayer(currentDrawer, "lineHistoryWithRedraw", lineHistory);
+      currentDrawer.sendMessage("lineHistoryWithRedraw", lineHistory);
       return;
     }
   }
@@ -232,17 +229,13 @@ const startNewRound = async () => {
     const previousDrawer = currentDrawer;
     previousDrawers.push(previousDrawer);
     if (!exitingPracticeMode) {
-      sendMessageToPlayer(previousDrawer, "drawerStatusChange", false);
+      previousDrawer.sendMessage("drawerStatusChange", false);
     }
   }
   selectNewDrawer();
   selectNewWord(previousWord);
-  sendMessageToPlayer(currentDrawer, "drawerStatusChange", true);
-  sendMessageToPlayer(
-    currentDrawer,
-    "drawerInfoUpdate",
-    getDrawerInfoMessage(true)
-  );
+  currentDrawer.sendMessage("drawerStatusChange", true);
+  currentDrawer.sendMessage("drawerInfoUpdate", getDrawerInfoMessage(true));
   sendMessageToPlayers("drawerInfoUpdate", getDrawerInfoMessage(), true);
   if (lineHistory.length > 0) {
     lineHistory = [];
@@ -253,7 +246,7 @@ const startNewRound = async () => {
   sendMessageToPlayers("roundTimeUpdate", roundTimeLeft);
   roundTimerInterval = setInterval(decrementRoundTimer, 1000);
   sendMessageToPlayers("backgroundColorUpdate", "blue", true);
-  sendMessageToPlayer(currentDrawer, "backgroundColorUpdate", "orange");
+  currentDrawer.sendMessage("backgroundColorUpdate", "orange");
   playersJoinedDuringRound = [];
 };
 
@@ -262,19 +255,18 @@ const startPracticeMode = (player) => {
   if (roundTimerInterval) {
     clearInterval(roundTimerInterval);
   }
-  sendMessageToPlayer(
-    player,
+  player.sendMessage(
     "drawerInfoUpdate",
     "Waiting for other players to join..."
   );
-  sendMessageToPlayer(player, "backgroundColorUpdate", "orange");
+  player.sendMessage("backgroundColorUpdate", "orange");
   if (lineHistory.length > 0) {
     lineHistory = [];
-    sendMessageToPlayer(player, "lineHistoryWithRedraw", lineHistory);
+    player.sendMessage("lineHistoryWithRedraw", lineHistory);
   }
-  sendMessageToPlayer(player, "roundTimeUpdate", "∞");
+  player.sendMessage("roundTimeUpdate", "∞");
   selectNewDrawer(player);
-  sendMessageToPlayer(player, "drawerStatusChange", true);
+  player.sendMessage("drawerStatusChange", true);
 };
 
 const decrementRoundTimer = () => {
@@ -332,12 +324,12 @@ const handleNameChangeRequest = (player, requestedName) => {
     player.name = requestedName;
     sendMessageToPlayers("playerListUpdate", getPlayerNameList());
     sendMessageToPlayers("drawerInfoUpdate", getDrawerInfoMessage(), true);
-    sendMessageToPlayer(player, "nameChangeStatus", {
+    player.sendMessage("nameChangeStatus", {
       success: true,
       message: "Your name has been changed.",
     });
   } else {
-    sendMessageToPlayer(player, "nameChangeStatus", {
+    player.sendMessage("nameChangeStatus", {
       success: false,
       message: "That name is unavailable. Please choose another name.",
     });
@@ -385,7 +377,7 @@ const handleConnection = (player) => {
   nextPlayerNumber++;
   joinedPlayers.push(player);
   playersJoinedDuringRound.push(player);
-  sendMessageToPlayer(player, "inputValues", {
+  player.sendMessage("inputValues", {
     brushStyle: brushStyle,
     chatMessageMaxLength: chatMessageMaxLength,
     playerNameMaxLength: playerNameMaxLength,
@@ -402,11 +394,11 @@ const handleConnection = (player) => {
       startNewRound();
       break;
     case states.ROUND_IN_PROGRESS:
-      sendMessageToPlayer(player, "drawerInfoUpdate", getDrawerInfoMessage());
-      sendMessageToPlayer(player, "roundTimeUpdate", roundTimeLeft);
+      player.sendMessage("drawerInfoUpdate", getDrawerInfoMessage());
+      player.sendMessage("roundTimeUpdate", roundTimeLeft);
       break;
     case states.ROUND_INTERMISSION:
-      sendMessageToPlayer(player, "drawerInfoUpdate", roundStartMessage);
+      player.sendMessage("drawerInfoUpdate", roundStartMessage);
       break;
   }
 
@@ -417,14 +409,14 @@ const handleConnection = (player) => {
     } else if (state === states.ROUND_INTERMISSION && roundTimeLeft === 0) {
       bgColor = "red";
     }
-    sendMessageToPlayer(player, "backgroundColorUpdate", bgColor);
+    player.sendMessage("backgroundColorUpdate", bgColor);
   }
 
   if (lineHistory.length > 0) {
-    sendMessageToPlayer(player, "lineHistoryWithRedraw", lineHistory);
+    player.sendMessage("lineHistoryWithRedraw", lineHistory);
   }
   if (chatHistory.length > 0) {
-    sendMessageToPlayer(player, "chatHistory", chatHistory);
+    player.sendMessage("chatHistory", chatHistory);
   }
 };
 
@@ -452,7 +444,7 @@ const handleMessage = (data, player) => {
 };
 
 server.on("connection", (ws) => {
-  const player = { name: `Player ${nextPlayerNumber}`, ws: ws };
+  const player = new Player(`Player ${nextPlayerNumber}`, ws);
   handleConnection(player);
   ws.on("message", (data) => {
     handleMessage(data, player);
