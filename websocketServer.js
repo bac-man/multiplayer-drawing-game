@@ -1,51 +1,18 @@
 const WebSocket = require("ws");
 const { Player } = require("./player");
 const { GameSession } = require("./gameSession");
+const { RoundHandler } = require("./roundHandler");
+const { states } = require("./gameStates");
 require("dotenv").config();
-
-let wordList;
-try {
-  wordList = require("./data/customWordList.json");
-} catch (e) {
-  console.log("Custom word list not found.");
-}
-if (!wordList || !wordList.length || wordList.length == 0) {
-  try {
-    wordList = require("./data/wordList.json");
-  } catch (e) {
-    console.log("Unable to find word list. Exiting.");
-    return;
-  }
-}
 
 const port = process.env.WS_SERVER_PORT || 3001;
 const server = new WebSocket.Server({ port: port });
 console.log(`\nWebSocket server listening on port ${port}.`);
 
 const session = new GameSession();
-let lineHistory = [];
-let currentDrawer;
-let nextPlayerNumber = 1;
-let playersJoinedDuringRound = [];
-let currentWord;
-let usedWords = [];
-let previousDrawers = [];
-const roundDuration = 60;
-let roundTimeLeft;
-let roundTimerInterval;
-let wordGuessed = false;
-let roundCanceled = false;
-let roundIntermissionTimeout;
-let resolveRoundIntermissionPromise;
-const states = Object.freeze({
-  PRACTICE_MODE: 1,
-  ROUND_IN_PROGRESS: 2,
-  ROUND_INTERMISSION: 3,
-  NO_PLAYERS: 4,
-});
-let state = states.NO_PLAYERS;
-
 const roundStartMessage = "A new round will start shortly.";
+const roundHandler = new RoundHandler(session, roundStartMessage);
+let nextPlayerNumber = 1;
 const chatMessageMaxLength = 50;
 const maxBrushSize = 100;
 const brushStyle = {
@@ -54,65 +21,15 @@ const brushStyle = {
   strokeStyle: "#000000",
   maxBrushSize: maxBrushSize,
 };
-
 const getDrawerInfoMessage = (playerIsDrawer = false) => {
   return playerIsDrawer
-    ? `You are the drawer. The word is "${currentWord.toLowerCase()}".`
-    : `${currentDrawer?.name} is drawing.`;
-};
-
-const selectNewWord = (previousWord = null) => {
-  if (usedWords.length == wordList.length) {
-    usedWords = [];
-  }
-  let newWordSelected = false;
-  while (!newWordSelected) {
-    const selectedWord = wordList[Math.floor(Math.random() * wordList.length)];
-    if (!usedWords.includes(selectedWord) && selectedWord !== previousWord) {
-      currentWord = selectedWord;
-      newWordSelected = true;
-    }
-  }
-  if (currentWord) {
-    console.log(`"${currentWord}" was chosen as the word.`);
-  }
-};
-
-const selectNewDrawer = (practiceModeDrawer = null) => {
-  if (practiceModeDrawer) {
-    currentDrawer = practiceModeDrawer;
-  } else {
-    let newDrawerSelected = false;
-    for (const player of session.players) {
-      if (
-        !previousDrawers.includes(player) &&
-        !playersJoinedDuringRound.includes(player)
-      ) {
-        currentDrawer = player;
-        newDrawerSelected = true;
-        break;
-      }
-    }
-    if (!newDrawerSelected) {
-      previousDrawers = [];
-      currentDrawer = session.players[0];
-    }
-  }
-  if (currentDrawer) {
-    let message;
-    if (practiceModeDrawer) {
-      message = `${currentDrawer.name} is now practicing alone.`;
-    } else {
-      message = `${currentDrawer.name} is now the drawer.`;
-    }
-    console.log(message);
-    session.sendChatMessageToPlayers(message, null, "blue");
-  }
+    ? `You are the drawer. The word is "${roundHandler.currentWord.toLowerCase()}".`
+    : `${roundHandler.currentDrawer?.name} is drawing.`;
 };
 
 const handleNewLineData = (sender, lineData) => {
   if (
-    sender.ws !== currentDrawer.ws ||
+    sender.ws !== roundHandler.currentDrawer.ws ||
     !lineData?.length ||
     lineData.length == 0 ||
     typeof lineData === "string"
@@ -129,36 +46,31 @@ const handleNewLineData = (sender, lineData) => {
       point.options.lineCap !== brushStyle.lineCap
     ) {
       // Remove the disallowed line from the drawer's canvas
-      currentDrawer.sendMessage("lineHistoryWithRedraw", lineHistory);
+      roundHandler.currentDrawer.sendMessage(
+        "lineHistoryWithRedraw",
+        roundHandler.lineHistory
+      );
       return;
     }
   }
-  lineHistory.push(lineData);
-  session.messagePlayers("lineHistory", lineHistory);
-  session.messagePlayers("newLineData", lineData, currentDrawer);
-};
-
-const handleCorrectGuess = (guesser) => {
-  wordGuessed = true;
-  session.sendChatMessageToPlayers(
-    `${guesser} guessed the word! It was "${currentWord.toLowerCase()}".`,
-    null,
-    "green"
-  );
-  session.messagePlayers("backgroundColorUpdate", "green");
-  startNewRound();
+  roundHandler.lineHistory.push(lineData);
+  session.messagePlayers("lineHistory", roundHandler.lineHistory);
+  session.messagePlayers("newLineData", lineData, roundHandler.currentDrawer);
 };
 
 const handleUndoDrawing = (sender, clearAll) => {
-  if (sender.ws !== currentDrawer.ws || lineHistory.length == 0) {
+  if (
+    sender.ws !== roundHandler.currentDrawer.ws ||
+    roundHandler.lineHistory.length == 0
+  ) {
     return;
   }
   if (clearAll) {
-    lineHistory = [];
+    roundHandler.lineHistory = [];
   } else {
-    lineHistory.pop();
+    roundHandler.lineHistory.pop();
   }
-  session.messagePlayers("lineHistoryWithRedraw", lineHistory);
+  session.messagePlayers("lineHistoryWithRedraw", roundHandler.lineHistory);
 };
 
 const handleChatMessage = (sender, text) => {
@@ -166,110 +78,33 @@ const handleChatMessage = (sender, text) => {
     return;
   }
   if (
-    state === states.ROUND_IN_PROGRESS &&
-    sender.ws !== currentDrawer.ws &&
-    text.toLowerCase() === currentWord.toLowerCase()
+    roundHandler.state === states.ROUND_IN_PROGRESS &&
+    sender.ws !== roundHandler.currentDrawer.ws &&
+    text.toLowerCase() === roundHandler.currentWord.toLowerCase()
   ) {
-    handleCorrectGuess(sender.name);
+    roundHandler.handleCorrectGuess(sender.name);
   } else {
     session.sendChatMessageToPlayers(text, sender.name);
   }
 };
 
-const cancelRoundStart = () => {
-  roundCanceled = true;
-  clearTimeout(roundIntermissionTimeout);
-  resolveRoundIntermissionPromise();
-};
-
-const startNewRound = async () => {
-  let exitingPracticeMode = false;
-  if (state === states.ROUND_INTERMISSION) {
-    return;
-  } else if (state === states.PRACTICE_MODE) {
-    exitingPracticeMode = true;
-  }
-  state = states.ROUND_INTERMISSION;
-  clearInterval(roundTimerInterval);
-  session.messagePlayers("drawerInfoUpdate", roundStartMessage);
-  await new Promise((resolve) => {
-    resolveRoundIntermissionPromise = resolve;
-    roundIntermissionTimeout = setTimeout(resolve, 3000);
-  });
-  if (roundCanceled) {
-    roundCanceled = false;
-    return;
-  }
-  state = states.ROUND_IN_PROGRESS;
-  wordGuessed = false;
-  let previousWord;
-  if (currentWord) {
-    previousWord = currentWord;
-    usedWords.push(previousWord);
-  }
-  if (currentDrawer) {
-    const previousDrawer = currentDrawer;
-    previousDrawers.push(previousDrawer);
-    if (!exitingPracticeMode) {
-      previousDrawer.sendMessage("drawerStatusChange", false);
-    }
-  }
-  selectNewDrawer();
-  selectNewWord(previousWord);
-  currentDrawer.sendMessage("drawerStatusChange", true);
-  currentDrawer.sendMessage("drawerInfoUpdate", getDrawerInfoMessage(true));
-  session.messagePlayers(
-    "drawerInfoUpdate",
-    getDrawerInfoMessage(),
-    currentDrawer
-  );
-  if (lineHistory.length > 0) {
-    lineHistory = [];
-    // Clear all players' canvases
-    session.messagePlayers("lineHistoryWithRedraw", lineHistory);
-  }
-  roundTimeLeft = roundDuration;
-  session.messagePlayers("roundTimeUpdate", roundTimeLeft);
-  roundTimerInterval = setInterval(decrementRoundTimer, 1000);
-  session.messagePlayers("backgroundColorUpdate", "blue", currentDrawer);
-  currentDrawer.sendMessage("backgroundColorUpdate", "orange");
-  playersJoinedDuringRound = [];
-};
-
 const startPracticeMode = (player) => {
-  state = states.PRACTICE_MODE;
-  if (roundTimerInterval) {
-    clearInterval(roundTimerInterval);
+  roundHandler.state = states.PRACTICE_MODE;
+  if (roundHandler.timerRunning) {
+    roundHandler.stopTimer();
   }
   player.sendMessage(
     "drawerInfoUpdate",
     "Waiting for other players to join..."
   );
   player.sendMessage("backgroundColorUpdate", "orange");
-  if (lineHistory.length > 0) {
-    lineHistory = [];
-    player.sendMessage("lineHistoryWithRedraw", lineHistory);
+  if (roundHandler.lineHistory.length > 0) {
+    roundHandler.lineHistory = [];
+    player.sendMessage("lineHistoryWithRedraw", roundHandler.lineHistory);
   }
   player.sendMessage("roundTimeUpdate", "∞");
-  selectNewDrawer(player);
+  roundHandler.selectNewDrawer(player);
   player.sendMessage("drawerStatusChange", true);
-};
-
-const decrementRoundTimer = () => {
-  roundTimeLeft--;
-  session.messagePlayers("roundTimeUpdate", roundTimeLeft);
-  if (roundTimeLeft < 1) {
-    console.log("Nobody managed to guess the word. Starting a new round.");
-    if (currentWord) {
-      session.sendChatMessageToPlayers(
-        `Too bad, nobody guessed the word! It was "${currentWord.toLowerCase()}".`,
-        null,
-        "red"
-      );
-    }
-    session.messagePlayers("backgroundColorUpdate", "red");
-    startNewRound();
-  }
 };
 
 const getPlayerNameList = () => {
@@ -302,7 +137,7 @@ const handleNameChangeRequest = (player, requestedName) => {
     session.messagePlayers(
       "drawerInfoUpdate",
       getDrawerInfoMessage(),
-      currentDrawer
+      roundHandler.currentDrawer
     );
     player.sendMessage("nameChangeStatus", {
       success: true,
@@ -325,30 +160,33 @@ const handleClose = (player) => {
     }
   });
   if (session.players.length <= 1) {
-    currentDrawer = null;
-    currentWord = null;
-    previousDrawers = [];
-    usedWords = [];
+    roundHandler.currentDrawer = null;
+    roundHandler.currentWord = null;
+    roundHandler.previousDrawers = [];
+    roundHandler.usedWords = [];
   }
   if (session.players.length === 1) {
-    if (state === states.ROUND_INTERMISSION) {
-      cancelRoundStart();
+    if (roundHandler.state === states.ROUND_INTERMISSION) {
+      roundHandler.cancelStart();
     }
     startPracticeMode(session.players[0]);
   } else if (session.players.length === 0) {
-    state = states.NO_PLAYERS;
-    if (roundTimerInterval) {
-      clearInterval(roundTimerInterval);
+    roundHandler.state = states.NO_PLAYERS;
+    if (roundHandler.timerRunning) {
+      roundHandler.stopTimer();
     }
     return;
   }
-  if (player.ws === currentDrawer.ws && state !== states.ROUND_INTERMISSION) {
+  if (
+    player.ws === roundHandler.currentDrawer.ws &&
+    roundHandler.state !== states.ROUND_INTERMISSION
+  ) {
     const drawerLeaveMessage = "The drawer has left. Starting a new round.";
     console.log(drawerLeaveMessage);
-    if (currentDrawer) {
+    if (roundHandler.currentDrawer) {
       session.sendChatMessageToPlayers(drawerLeaveMessage, null, "blue");
     }
-    startNewRound();
+    roundHandler.startNew();
   }
   session.messagePlayers("playerListUpdate", getPlayerNameList());
 };
@@ -357,7 +195,7 @@ const handleConnection = (player) => {
   nextPlayerNumber++;
   session.players.push(player);
 
-  playersJoinedDuringRound.push(player);
+  roundHandler.lateJoiners.push(player);
   player.sendMessage("inputValues", {
     brushStyle: brushStyle,
     chatMessageMaxLength: chatMessageMaxLength,
@@ -367,34 +205,37 @@ const handleConnection = (player) => {
   session.messagePlayers("playerListUpdate", getPlayerNameList());
   session.sendChatMessageToPlayers(`${player.name} has joined.`, null, "gray");
 
-  switch (state) {
+  switch (roundHandler.state) {
     case states.NO_PLAYERS:
       startPracticeMode(player);
       break;
     case states.PRACTICE_MODE:
-      startNewRound();
+      roundHandler.startNew();
       break;
     case states.ROUND_IN_PROGRESS:
       player.sendMessage("drawerInfoUpdate", getDrawerInfoMessage());
-      player.sendMessage("roundTimeUpdate", roundTimeLeft);
+      player.sendMessage("roundTimeUpdate", roundHandler.timeLeft);
       break;
     case states.ROUND_INTERMISSION:
       player.sendMessage("drawerInfoUpdate", roundStartMessage);
       break;
   }
 
-  if (state !== states.PRACTICE_MODE) {
+  if (roundHandler.state !== states.PRACTICE_MODE) {
     let bgColor = "blue";
-    if (wordGuessed) {
+    if (roundHandler.wordGuessed) {
       bgColor = "green";
-    } else if (state === states.ROUND_INTERMISSION && roundTimeLeft === 0) {
+    } else if (
+      roundHandler.state === states.ROUND_INTERMISSION &&
+      roundHandler.timeLeft === 0
+    ) {
       bgColor = "red";
     }
     player.sendMessage("backgroundColorUpdate", bgColor);
   }
 
-  if (lineHistory.length > 0) {
-    player.sendMessage("lineHistoryWithRedraw", lineHistory);
+  if (roundHandler.lineHistory.length > 0) {
+    player.sendMessage("lineHistoryWithRedraw", roundHandler.lineHistory);
   }
   if (session.chatHistory.length > 0) {
     player.sendMessage("chatHistory", session.chatHistory);
