@@ -7,6 +7,7 @@ class GameSession {
     }
     GameSession._instance = this;
     this.players = [];
+    this.chatHistory = [];
   }
   messagePlayers(type, value, excludedPlayer = null) {
     this.players.forEach((player) => {
@@ -14,6 +15,11 @@ class GameSession {
         player.sendMessage(type, value);
       }
     });
+  }
+  sendChatMessageToPlayers(text, sender, className) {
+    const message = { sender: sender, text: text, className: className };
+    this.messagePlayers("chatMessage", message);
+    this.chatHistory.push(message);
   }
 }
 

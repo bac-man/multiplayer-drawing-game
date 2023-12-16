@@ -24,7 +24,6 @@ console.log(`\nWebSocket server listening on port ${port}.`);
 
 const session = new GameSession();
 let lineHistory = [];
-let chatHistory = [];
 let currentDrawer;
 let nextPlayerNumber = 1;
 let playersJoinedDuringRound = [];
@@ -107,7 +106,7 @@ const selectNewDrawer = (practiceModeDrawer = null) => {
       message = `${currentDrawer.name} is now the drawer.`;
     }
     console.log(message);
-    sendChatMessageToPlayers(message, null, "blue");
+    session.sendChatMessageToPlayers(message, null, "blue");
   }
 };
 
@@ -141,7 +140,7 @@ const handleNewLineData = (sender, lineData) => {
 
 const handleCorrectGuess = (guesser) => {
   wordGuessed = true;
-  sendChatMessageToPlayers(
+  session.sendChatMessageToPlayers(
     `${guesser} guessed the word! It was "${currentWord.toLowerCase()}".`,
     null,
     "green"
@@ -162,12 +161,6 @@ const handleUndoDrawing = (sender, clearAll) => {
   session.messagePlayers("lineHistoryWithRedraw", lineHistory);
 };
 
-const sendChatMessageToPlayers = (text, sender, className) => {
-  const message = { sender: sender, text: text, className: className };
-  session.messagePlayers("chatMessage", message);
-  chatHistory.push(message);
-};
-
 const handleChatMessage = (sender, text) => {
   if (text.length > chatMessageMaxLength) {
     return;
@@ -179,7 +172,7 @@ const handleChatMessage = (sender, text) => {
   ) {
     handleCorrectGuess(sender.name);
   } else {
-    sendChatMessageToPlayers(text, sender.name);
+    session.sendChatMessageToPlayers(text, sender.name);
   }
 };
 
@@ -268,7 +261,7 @@ const decrementRoundTimer = () => {
   if (roundTimeLeft < 1) {
     console.log("Nobody managed to guess the word. Starting a new round.");
     if (currentWord) {
-      sendChatMessageToPlayers(
+      session.sendChatMessageToPlayers(
         `Too bad, nobody guessed the word! It was "${currentWord.toLowerCase()}".`,
         null,
         "red"
@@ -299,7 +292,7 @@ const handleNameChangeRequest = (player, requestedName) => {
     }
   }
   if (validName && nameAvailable) {
-    sendChatMessageToPlayers(
+    session.sendChatMessageToPlayers(
       `${player.name} changed their name to ${requestedName}.`,
       null,
       "gray"
@@ -325,7 +318,7 @@ const handleNameChangeRequest = (player, requestedName) => {
 
 const handleClose = (player) => {
   console.log(`${player.name} has disconnected from the WebSocket server.`);
-  sendChatMessageToPlayers(`${player.name} has left.`, null, "gray");
+  session.sendChatMessageToPlayers(`${player.name} has left.`, null, "gray");
   session.players.forEach((joinedPlayer, index) => {
     if (joinedPlayer.ws === player.ws) {
       session.players.splice(index, 1);
@@ -353,7 +346,7 @@ const handleClose = (player) => {
     const drawerLeaveMessage = "The drawer has left. Starting a new round.";
     console.log(drawerLeaveMessage);
     if (currentDrawer) {
-      sendChatMessageToPlayers(drawerLeaveMessage, null, "blue");
+      session.sendChatMessageToPlayers(drawerLeaveMessage, null, "blue");
     }
     startNewRound();
   }
@@ -372,7 +365,7 @@ const handleConnection = (player) => {
   });
   console.log(`${player.name} has connected to the WebSocket server.`);
   session.messagePlayers("playerListUpdate", getPlayerNameList());
-  sendChatMessageToPlayers(`${player.name} has joined.`, null, "gray");
+  session.sendChatMessageToPlayers(`${player.name} has joined.`, null, "gray");
 
   switch (state) {
     case states.NO_PLAYERS:
@@ -403,8 +396,8 @@ const handleConnection = (player) => {
   if (lineHistory.length > 0) {
     player.sendMessage("lineHistoryWithRedraw", lineHistory);
   }
-  if (chatHistory.length > 0) {
-    player.sendMessage("chatHistory", chatHistory);
+  if (session.chatHistory.length > 0) {
+    player.sendMessage("chatHistory", session.chatHistory);
   }
 };
 
