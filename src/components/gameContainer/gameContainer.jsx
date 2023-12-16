@@ -99,7 +99,6 @@ const GameContainer = () => {
         canvasRef.current.dispatchEvent(new CustomEvent("redraw"));
         break;
       case "nameChangeStatus":
-        console.log("here");
         setNameChangeStatus(messageValue);
         break;
       case "newLineData":
