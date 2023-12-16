@@ -8,7 +8,7 @@ try {
 }
 if (!wordList || !wordList.length || wordList.length == 0) {
   try {
-    wordList = require("./data/wordList.json");
+    wordList = require("../data/wordList.json");
   } catch (e) {
     console.log("Unable to find word list. Exiting.");
     return;
