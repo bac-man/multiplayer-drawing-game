@@ -9,6 +9,7 @@ class GameSession {
     this.players = [];
     this.chatHistory = [];
   }
+
   messagePlayers(type, value, excludedPlayer = null) {
     this.players.forEach((player) => {
       if (!excludedPlayer || excludedPlayer !== player) {
@@ -16,10 +17,19 @@ class GameSession {
       }
     });
   }
+
   sendChatMessageToPlayers(text, sender, className) {
     const message = { sender: sender, text: text, className: className };
     this.messagePlayers("chatMessage", message);
     this.chatHistory.push(message);
+  }
+
+  findAllPlayerNames() {
+    const names = [];
+    this.players.forEach((player) => {
+      names.push(player.name);
+    });
+    return names;
   }
 }
 

@@ -102,14 +102,6 @@ const startPracticeMode = (player) => {
   player.sendMessage("drawerStatusChange", true);
 };
 
-const getPlayerNameList = () => {
-  const names = [];
-  session.players.forEach((player) => {
-    names.push(player.name);
-  });
-  return names;
-};
-
 const handleNameChangeRequest = (player, requestedName) => {
   const validName = player.checkRequestedNameValidity(requestedName);
   let nameAvailable = true;
@@ -128,7 +120,7 @@ const handleNameChangeRequest = (player, requestedName) => {
       "gray"
     );
     player.name = requestedName;
-    session.messagePlayers("playerListUpdate", getPlayerNameList());
+    session.messagePlayers("playerListUpdate", session.findAllPlayerNames());
     if (
       player === roundHandler.currentDrawer &&
       roundHandler.state !== states.ROUND_INTERMISSION
@@ -188,7 +180,7 @@ const handleClose = (player) => {
     }
     roundHandler.startNew();
   }
-  session.messagePlayers("playerListUpdate", getPlayerNameList());
+  session.messagePlayers("playerListUpdate", session.findAllPlayerNames());
 };
 
 const handleConnection = (player) => {
@@ -202,7 +194,7 @@ const handleConnection = (player) => {
     playerNameMaxLength: player.nameMaxLength,
   });
   console.log(`${player.name} has connected to the WebSocket server.`);
-  session.messagePlayers("playerListUpdate", getPlayerNameList());
+  session.messagePlayers("playerListUpdate", session.findAllPlayerNames());
   session.sendChatMessageToPlayers(`${player.name} has joined.`, null, "gray");
 
   switch (roundHandler.state) {
