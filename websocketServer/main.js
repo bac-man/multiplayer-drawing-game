@@ -21,11 +21,6 @@ const brushStyle = {
   strokeStyle: "#000000",
   maxBrushSize: maxBrushSize,
 };
-const getDrawerInfoMessage = (playerIsDrawer = false) => {
-  return playerIsDrawer
-    ? `You are the drawer. The word is "${roundHandler.currentWord.toLowerCase()}".`
-    : `${roundHandler.currentDrawer?.name} is drawing.`;
-};
 
 const handleNewLineData = (sender, lineData) => {
   if (
@@ -140,7 +135,7 @@ const handleNameChangeRequest = (player, requestedName) => {
     ) {
       session.messagePlayers(
         "drawerInfoUpdate",
-        getDrawerInfoMessage(),
+        roundHandler.getDrawerInfoMessage(),
         roundHandler.currentDrawer
       );
     }
@@ -218,7 +213,10 @@ const handleConnection = (player) => {
       roundHandler.startNew();
       break;
     case states.ROUND_IN_PROGRESS:
-      player.sendMessage("drawerInfoUpdate", getDrawerInfoMessage());
+      player.sendMessage(
+        "drawerInfoUpdate",
+        roundHandler.getDrawerInfoMessage()
+      );
       player.sendMessage("roundTimeUpdate", roundHandler.timeLeft);
       break;
     case states.ROUND_INTERMISSION:
