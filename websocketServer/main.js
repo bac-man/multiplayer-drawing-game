@@ -134,11 +134,16 @@ const handleNameChangeRequest = (player, requestedName) => {
     );
     player.name = requestedName;
     session.messagePlayers("playerListUpdate", getPlayerNameList());
-    session.messagePlayers(
-      "drawerInfoUpdate",
-      getDrawerInfoMessage(),
-      roundHandler.currentDrawer
-    );
+    if (
+      player === roundHandler.currentDrawer &&
+      roundHandler.state !== states.ROUND_INTERMISSION
+    ) {
+      session.messagePlayers(
+        "drawerInfoUpdate",
+        getDrawerInfoMessage(),
+        roundHandler.currentDrawer
+      );
+    }
     player.sendMessage("nameChangeStatus", {
       success: true,
       message: "Your name has been changed.",
