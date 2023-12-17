@@ -145,12 +145,7 @@ const handleNameChangeRequest = (player, requestedName) => {
 
 const handleClose = (player) => {
   console.log(`${player.name} has disconnected from the WebSocket server.`);
-  session.sendChatMessageToPlayers(`${player.name} has left.`, null, "gray");
-  session.players.forEach((joinedPlayer, index) => {
-    if (joinedPlayer.ws === player.ws) {
-      session.players.splice(index, 1);
-    }
-  });
+  session.removePlayer(player);
   if (session.players.length <= 1) {
     roundHandler.currentDrawer = null;
     roundHandler.currentWord = null;
@@ -180,7 +175,6 @@ const handleClose = (player) => {
     }
     roundHandler.startNew();
   }
-  session.messagePlayers("playerListUpdate", session.findAllPlayerNames());
 };
 
 const handleConnection = (player) => {

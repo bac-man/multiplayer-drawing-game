@@ -31,6 +31,12 @@ class GameSession {
     });
     return names;
   }
+
+  removePlayer(player) {
+    this.players.splice(this.players.indexOf(player), 1);
+    this.sendChatMessageToPlayers(`${player.name} has left.`, null, "gray");
+    this.messagePlayers("playerListUpdate", this.findAllPlayerNames());
+  }
 }
 
 module.exports = { GameSession };
