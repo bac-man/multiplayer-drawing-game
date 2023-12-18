@@ -216,6 +216,39 @@ class RoundHandler {
     }
   }
 
+  handleLeavingPlayer(player) {
+    const remainingPlayerCount = this.session.players.length;
+    if (remainingPlayerCount <= 1) {
+      this.currentDrawer = null;
+      this.currentWord = null;
+      this.previousDrawers = [];
+      this.usedWords = [];
+    }
+    if (remainingPlayerCount === 1) {
+      if (this.state === states.ROUND_INTERMISSION) {
+        this.cancelStart();
+      }
+      this.startSoloPractice(this.session.players[0]);
+    } else if (remainingPlayerCount === 0) {
+      this.state = states.NO_PLAYERS;
+      if (this.timerRunning) {
+        this.stopTimer();
+      }
+      return;
+    }
+    if (
+      player === this.currentDrawer &&
+      this.state !== states.ROUND_INTERMISSION
+    ) {
+      const drawerLeaveMessage = "The drawer has left. Starting a new round.";
+      console.log(drawerLeaveMessage);
+      if (this.currentDrawer) {
+        this.session.sendChatMessageToPlayers(drawerLeaveMessage, null, "blue");
+      }
+      this.startNew();
+    }
+  }
+
   startSoloPractice(player) {
     this.state = states.PRACTICE_MODE;
     if (this.timerRunning) {

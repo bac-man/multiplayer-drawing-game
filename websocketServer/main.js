@@ -126,35 +126,7 @@ const handleNameChangeRequest = (player, requestedName) => {
 const handleClose = (player) => {
   console.log(`${player.name} has disconnected from the WebSocket server.`);
   session.removePlayer(player);
-  if (session.players.length <= 1) {
-    roundHandler.currentDrawer = null;
-    roundHandler.currentWord = null;
-    roundHandler.previousDrawers = [];
-    roundHandler.usedWords = [];
-  }
-  if (session.players.length === 1) {
-    if (roundHandler.state === states.ROUND_INTERMISSION) {
-      roundHandler.cancelStart();
-    }
-    roundHandler.startSoloPractice(session.players[0]);
-  } else if (session.players.length === 0) {
-    roundHandler.state = states.NO_PLAYERS;
-    if (roundHandler.timerRunning) {
-      roundHandler.stopTimer();
-    }
-    return;
-  }
-  if (
-    player.ws === roundHandler.currentDrawer.ws &&
-    roundHandler.state !== states.ROUND_INTERMISSION
-  ) {
-    const drawerLeaveMessage = "The drawer has left. Starting a new round.";
-    console.log(drawerLeaveMessage);
-    if (roundHandler.currentDrawer) {
-      session.sendChatMessageToPlayers(drawerLeaveMessage, null, "blue");
-    }
-    roundHandler.startNew();
-  }
+  roundHandler.handleLeavingPlayer(player);
 };
 
 const handleConnection = (player) => {
