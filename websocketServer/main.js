@@ -83,25 +83,6 @@ const handleChatMessage = (sender, text) => {
   }
 };
 
-const startPracticeMode = (player) => {
-  roundHandler.state = states.PRACTICE_MODE;
-  if (roundHandler.timerRunning) {
-    roundHandler.stopTimer();
-  }
-  player.sendMessage(
-    "drawerInfoUpdate",
-    "Waiting for other players to join..."
-  );
-  player.sendMessage("backgroundColorUpdate", "orange");
-  if (roundHandler.lineHistory.length > 0) {
-    roundHandler.lineHistory = [];
-    player.sendMessage("lineHistoryWithRedraw", roundHandler.lineHistory);
-  }
-  player.sendMessage("roundTimeUpdate", "∞");
-  roundHandler.selectNewDrawer(player);
-  player.sendMessage("drawerStatusChange", true);
-};
-
 const handleNameChangeRequest = (player, requestedName) => {
   const validName = player.checkRequestedNameValidity(requestedName);
   let nameAvailable = true;
@@ -156,7 +137,7 @@ const handleClose = (player) => {
     if (roundHandler.state === states.ROUND_INTERMISSION) {
       roundHandler.cancelStart();
     }
-    startPracticeMode(session.players[0]);
+    roundHandler.startSoloPractice(session.players[0]);
   } else if (session.players.length === 0) {
     roundHandler.state = states.NO_PLAYERS;
     if (roundHandler.timerRunning) {
@@ -190,7 +171,7 @@ const handleConnection = (player) => {
 
   switch (roundHandler.state) {
     case states.NO_PLAYERS:
-      startPracticeMode(player);
+      roundHandler.startSoloPractice(player);
       break;
     case states.PRACTICE_MODE:
       roundHandler.startNew();

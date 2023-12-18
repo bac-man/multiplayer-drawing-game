@@ -182,6 +182,26 @@ class RoundHandler {
       console.log(`"${this.currentWord}" was chosen as the word.`);
     }
   }
+
+  startSoloPractice(player) {
+    this.state = states.PRACTICE_MODE;
+    if (this.timerRunning) {
+      this.stopTimer();
+    }
+    player.sendMessage(
+      "drawerInfoUpdate",
+      "Waiting for other players to join..."
+    );
+    player.sendMessage("backgroundColorUpdate", "orange");
+    if (this.lineHistory.length > 0) {
+      this.lineHistory = [];
+      player.sendMessage("lineHistoryWithRedraw", this.lineHistory);
+    }
+    player.sendMessage("roundTimeUpdate", "∞");
+    this.selectNewDrawer(player);
+    player.sendMessage("drawerStatusChange", true);
+  }
+
   getDrawerInfoMessage(playerIsDrawer = false) {
     return playerIsDrawer
       ? `You are the drawer. The word is "${this.currentWord.toLowerCase()}".`
