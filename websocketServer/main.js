@@ -179,8 +179,7 @@ const handleClose = (player) => {
 
 const handleConnection = (player) => {
   nextPlayerNumber++;
-  session.players.push(player);
-
+  session.addPlayer(player);
   roundHandler.lateJoiners.push(player);
   player.sendMessage("inputValues", {
     brushStyle: brushStyle,
@@ -188,8 +187,6 @@ const handleConnection = (player) => {
     playerNameMaxLength: player.nameMaxLength,
   });
   console.log(`${player.name} has connected to the WebSocket server.`);
-  session.messagePlayers("playerListUpdate", session.findAllPlayerNames());
-  session.sendChatMessageToPlayers(`${player.name} has joined.`, null, "gray");
 
   switch (roundHandler.state) {
     case states.NO_PLAYERS:

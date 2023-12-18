@@ -32,6 +32,12 @@ class GameSession {
     return names;
   }
 
+  addPlayer(player) {
+    this.players.push(player);
+    this.sendChatMessageToPlayers(`${player.name} has joined.`, null, "gray");
+    this.messagePlayers("playerListUpdate", this.findAllPlayerNames());
+  }
+
   removePlayer(player) {
     this.players.splice(this.players.indexOf(player), 1);
     this.sendChatMessageToPlayers(`${player.name} has left.`, null, "gray");
