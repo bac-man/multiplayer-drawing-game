@@ -16,7 +16,7 @@ if (!wordList || !wordList.length || wordList.length == 0) {
 }
 
 class RoundHandler {
-  constructor(session, startMessage) {
+  constructor(session) {
     if (RoundHandler._instance) {
       throw new Error(
         "The singleton class RoundHandler can only be instantiated once."
@@ -24,7 +24,7 @@ class RoundHandler {
     }
     RoundHandler._instance = this;
     this.session = session;
-    this.startMessage = startMessage;
+    this.startMessage = "A new round will start shortly.";
     this.lineHistory = [];
     this.currentDrawer;
     this.lateJoiners = [];
@@ -180,6 +180,39 @@ class RoundHandler {
     }
     if (this.currentWord) {
       console.log(`"${this.currentWord}" was chosen as the word.`);
+    }
+  }
+
+  handleNewPlayer(player) {
+    switch (this.state) {
+      case states.NO_PLAYERS:
+        this.startSoloPractice(player);
+        break;
+      case states.PRACTICE_MODE:
+        this.startNew();
+        break;
+      case states.ROUND_IN_PROGRESS:
+        player.sendMessage("drawerInfoUpdate", this.getDrawerInfoMessage());
+        player.sendMessage("roundTimeUpdate", this.timeLeft);
+        break;
+      case states.ROUND_INTERMISSION:
+        player.sendMessage("drawerInfoUpdate", this.startMessage);
+        break;
+    }
+    if (this.state !== states.PRACTICE_MODE) {
+      let bgColor = "blue";
+      if (this.wordGuessed) {
+        bgColor = "green";
+      } else if (
+        this.state === states.ROUND_INTERMISSION &&
+        this.timeLeft === 0
+      ) {
+        bgColor = "red";
+      }
+      player.sendMessage("backgroundColorUpdate", bgColor);
+    }
+    if (this.lineHistory.length > 0) {
+      player.sendMessage("lineHistoryWithRedraw", this.lineHistory);
     }
   }
 

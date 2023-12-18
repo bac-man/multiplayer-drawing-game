@@ -10,8 +10,7 @@ const server = new WebSocket.Server({ port: port });
 console.log(`\nWebSocket server listening on port ${port}.`);
 
 const session = new GameSession();
-const roundStartMessage = "A new round will start shortly.";
-const roundHandler = new RoundHandler(session, roundStartMessage);
+const roundHandler = new RoundHandler(session);
 let nextPlayerNumber = 1;
 const chatMessageMaxLength = 50;
 const maxBrushSize = 100;
@@ -167,43 +166,9 @@ const handleConnection = (player) => {
     chatMessageMaxLength: chatMessageMaxLength,
     playerNameMaxLength: player.nameMaxLength,
   });
+
+  roundHandler.handleNewPlayer(player);
   console.log(`${player.name} has connected to the WebSocket server.`);
-
-  switch (roundHandler.state) {
-    case states.NO_PLAYERS:
-      roundHandler.startSoloPractice(player);
-      break;
-    case states.PRACTICE_MODE:
-      roundHandler.startNew();
-      break;
-    case states.ROUND_IN_PROGRESS:
-      player.sendMessage(
-        "drawerInfoUpdate",
-        roundHandler.getDrawerInfoMessage()
-      );
-      player.sendMessage("roundTimeUpdate", roundHandler.timeLeft);
-      break;
-    case states.ROUND_INTERMISSION:
-      player.sendMessage("drawerInfoUpdate", roundStartMessage);
-      break;
-  }
-
-  if (roundHandler.state !== states.PRACTICE_MODE) {
-    let bgColor = "blue";
-    if (roundHandler.wordGuessed) {
-      bgColor = "green";
-    } else if (
-      roundHandler.state === states.ROUND_INTERMISSION &&
-      roundHandler.timeLeft === 0
-    ) {
-      bgColor = "red";
-    }
-    player.sendMessage("backgroundColorUpdate", bgColor);
-  }
-
-  if (roundHandler.lineHistory.length > 0) {
-    player.sendMessage("lineHistoryWithRedraw", roundHandler.lineHistory);
-  }
   if (session.chatHistory.length > 0) {
     player.sendMessage("chatHistory", session.chatHistory);
   }
