@@ -49,16 +49,15 @@ const Chatbox = ({ messages, sendChatMessage, chatMessageMaxLength }) => {
     <div className={style.chatbox}>
       <div className={style.messageHistory}>
         {!autoScrolling && (
-          <div
-            className={style.autoScrollMessage}
+          <button
+            className={style.autoScrollButton}
             onClick={() => {
               messagesWrapperRef.current.scrollTop =
                 messagesWrapperRef.current.scrollHeight;
             }}
           >
-            <span>Continue auto scrolling</span>
-            <div className={style.arrow} />
-          </div>
+            Continue auto scrolling
+          </button>
         )}
         <div
           ref={messagesWrapperRef}

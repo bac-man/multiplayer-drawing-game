@@ -32,7 +32,7 @@
         }
       }
     }
-    .autoScrollMessage {
+    .autoScrollButton {
       position: absolute;
       bottom: 0;
       width: 100%;
@@ -42,14 +42,21 @@
       padding: 0.5rem 0.75rem;
       background-color: rgba(40, 40, 40, 0.6);
       color: rgb(255, 255, 255);
+      border-radius: 0 0 $border-radius $border-radius;
       cursor: pointer;
       z-index: 1;
-      .arrow {
+      border: none;
+      &::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: 5%;
         width: 0;
         height: 0;
         border-left: 0.5rem solid transparent;
         border-right: 0.5rem solid transparent;
         border-top: 1rem solid rgb(255, 255, 255);
+        transform: translateY(-50%);
       }
     }
   }
