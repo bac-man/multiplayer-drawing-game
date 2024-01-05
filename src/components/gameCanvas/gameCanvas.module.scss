@@ -2,13 +2,13 @@
 @import "../../style/variables.scss";
 
 .wrapper {
+  flex: 1 0 auto;
   position: relative;
   aspect-ratio: 16 / 9;
   border-top-left-radius: $border-radius;
   border-top-right-radius: $border-radius;
   background-color: $dark-gray;
   @include desktop-or-landscape() {
-    flex: 1 0 auto;
     border-top-right-radius: 0;
   }
   .canvas {

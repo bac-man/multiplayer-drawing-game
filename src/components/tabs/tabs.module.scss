@@ -2,22 +2,20 @@
 @import "../../style/variables.scss";
 
 .tabs {
+  flex: 0 0 50%;
   display: flex;
   flex-direction: column;
   gap: $small-spacing;
-  padding: $small-spacing 0 0 0;
-  aspect-ratio: 2 / 1;
   min-height: 13rem;
   @include desktop-or-landscape() {
     aspect-ratio: unset;
     min-height: unset;
     align-self: stretch;
-    flex: 0 1 25%;
-    padding: 0 0 0 $spacing;
     gap: $spacing;
   }
   .tabContent {
     flex: 1 1 0;
+    overflow-y: scroll;
     > div {
       height: 100%;
       display: flex;
@@ -40,13 +38,6 @@
     button {
       flex: 1 1 auto;
       border-radius: $border-radius;
-      font-size: 1rem;
-      @media screen and (min-width: 400px) {
-        font-size: 1.5rem;
-      }
-      @include desktop-or-landscape() {
-        font-size: 1rem;
-      }
       &.selected {
         background-color: $light-gray;
       }

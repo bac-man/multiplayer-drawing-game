@@ -78,7 +78,7 @@ const BrushOptions = ({
               undoDrawing(true);
             }}
           >
-            Clear all
+            Clear
           </button>
         </div>
       </div>
