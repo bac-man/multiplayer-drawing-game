@@ -15,7 +15,6 @@
   }
   .tabContent {
     flex: 1 1 0;
-    overflow-y: scroll;
     > div {
       height: 100%;
       display: flex;
@@ -23,12 +22,6 @@
       gap: $small-spacing;
       @include desktop-or-landscape() {
         gap: $spacing;
-      }
-      > div:first-child {
-        flex: 1 1 70%;
-        @include desktop-or-landscape() {
-          flex-basis: 85%;
-        }
       }
     }
   }

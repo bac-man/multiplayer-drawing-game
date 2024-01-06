@@ -2,20 +2,24 @@
 @import "../../style/variables.scss";
 
 .brushOptions {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  .undoButtons {
+    display: flex;
+    gap: $spacing;
+    flex: 0 0 auto;
+    button {
+      flex: 0 1 50%;
+      border-radius: $border-radius;
+    }
+  }
   .fields {
     display: flex;
     flex-direction: column;
     flex: 1 1 0;
+    overflow-y: scroll;
     justify-content: space-between;
-    .undoButtons {
-      display: flex;
-      gap: $spacing;
-      button {
-        flex: 0 1 50%;
-        border-radius: $border-radius;
-        font-size: 0.7rem;
-      }
-    }
     .field {
       display: flex;
       align-items: center;

@@ -63,24 +63,24 @@ const BrushOptions = ({
             <span>{size}</span>
           </div>
         </div>
-        <div className={style.undoButtons}>
-          <button
-            disabled={undoButtonsDisabled}
-            onClick={() => {
-              undoDrawing(false);
-            }}
-          >
-            Undo
-          </button>
-          <button
-            disabled={undoButtonsDisabled}
-            onClick={() => {
-              undoDrawing(true);
-            }}
-          >
-            Clear
-          </button>
-        </div>
+      </div>
+      <div className={style.undoButtons}>
+        <button
+          disabled={undoButtonsDisabled}
+          onClick={() => {
+            undoDrawing(false);
+          }}
+        >
+          Undo
+        </button>
+        <button
+          disabled={undoButtonsDisabled}
+          onClick={() => {
+            undoDrawing(true);
+          }}
+        >
+          Clear
+        </button>
       </div>
     </div>
   );

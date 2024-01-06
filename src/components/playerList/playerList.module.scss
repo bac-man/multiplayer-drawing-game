@@ -5,6 +5,7 @@
   flex-direction: column;
   .nameListWrapper {
     position: relative;
+    flex-grow: 1;
     ul {
       position: absolute;
       left: 0;
