@@ -9,9 +9,16 @@
     display: flex;
     gap: $spacing;
     flex: 0 0 auto;
+    @include desktop() {
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
     button {
-      flex: 0 1 50%;
+      flex: 1 1 auto;
       border-radius: $border-radius;
+      @include desktop() {
+        flex-basis: 100%;
+      }
     }
   }
   .fields {
@@ -19,7 +26,7 @@
     flex-direction: column;
     flex: 1 1 0;
     overflow-y: scroll;
-    justify-content: space-around;
+    gap: $spacing;
     .field {
       display: flex;
       align-items: center;
