@@ -186,28 +186,26 @@ const GameContainer = () => {
           sendNewLineData={sendNewLineData}
           lineHistoryRef={lineHistoryRef}
         />
-        <div className={style.splitPanel}>
-          <Tabs drawingAllowed={drawingAllowed}>
-            <BrushOptions
-              brushStyle={brushStyle}
-              setBrushStyle={setBrushStyle}
-              undoDrawing={undoDrawing}
-              undoButtonsDisabled={undoButtonsDisabled}
-              tabButtonText={"✏️"}
-              enabledOnlyWhenDrawer={true}
-            />
-            <PlayerList
-              playerNames={playerNames}
-              setNameChangeModalOpen={setNameChangeModalOpen}
-              tabButtonText={"👥"}
-            />
-          </Tabs>
-          <Chatbox
-            messages={messages}
-            sendChatMessage={sendChatMessage}
-            chatMessageMaxLength={chatMessageMaxLength}
+        <Chatbox
+          messages={messages}
+          sendChatMessage={sendChatMessage}
+          chatMessageMaxLength={chatMessageMaxLength}
+        />
+        <Tabs drawingAllowed={drawingAllowed}>
+          <BrushOptions
+            brushStyle={brushStyle}
+            setBrushStyle={setBrushStyle}
+            undoDrawing={undoDrawing}
+            undoButtonsDisabled={undoButtonsDisabled}
+            tabButtonText={"✏️"}
+            enabledOnlyWhenDrawer={true}
           />
-        </div>
+          <PlayerList
+            playerNames={playerNames}
+            setNameChangeModalOpen={setNameChangeModalOpen}
+            tabButtonText={"👥"}
+          />
+        </Tabs>
         <NameChangeModal
           nameMaxLength={playerNameMaxLength}
           isOpen={nameChangeModalOpen}

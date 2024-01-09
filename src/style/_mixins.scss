@@ -5,18 +5,3 @@
     @content;
   }
 }
-
-@mixin landscape() {
-  @media screen and (orientation: landscape) and (min-width: 540px) {
-    @content;
-  }
-}
-
-@mixin desktop-or-landscape() {
-  @include desktop() {
-    @content;
-  }
-  @include landscape() {
-    @content;
-  }
-}

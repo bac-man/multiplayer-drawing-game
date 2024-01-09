@@ -24,12 +24,12 @@
       display: flex;
       align-items: center;
       gap: $spacing;
-      @include desktop-or-landscape() {
+      @include desktop() {
         gap: 0.25rem;
       }
       label {
         flex: 0 0 25%;
-        @include desktop-or-landscape() {
+        @include desktop() {
           flex-basis: 50%;
         }
       }

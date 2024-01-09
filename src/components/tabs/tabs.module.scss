@@ -2,15 +2,11 @@
 @import "../../style/variables.scss";
 
 .tabs {
-  flex: 0 0 50%;
   display: flex;
   flex-direction: column;
   gap: $small-spacing;
-  min-height: 13rem;
-  @include desktop-or-landscape() {
-    aspect-ratio: unset;
-    min-height: unset;
-    align-self: stretch;
+  grid-area: c;
+  @include desktop() {
     gap: $spacing;
   }
   .tabContent {
@@ -20,7 +16,7 @@
       display: flex;
       flex-direction: column;
       gap: $small-spacing;
-      @include desktop-or-landscape() {
+      @include desktop() {
         gap: $spacing;
       }
     }

@@ -2,13 +2,13 @@
 @import "../../style/variables.scss";
 
 .wrapper {
-  flex: 1 0 auto;
   position: relative;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
   border-top-left-radius: $border-radius;
   border-top-right-radius: $border-radius;
   background-color: $dark-gray;
-  @include desktop-or-landscape() {
+  grid-area: a;
+  @include desktop() {
     border-top-right-radius: 0;
   }
   .canvas {
@@ -19,7 +19,6 @@
     background-color: $light-gray;
     touch-action: none;
     border-radius: $border-radius;
-
     &.drawingDisabled {
       pointer-events: none;
     }
