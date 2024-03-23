@@ -1,5 +1,5 @@
 const WebSocket = require("ws");
-const { Player } = require("../player");
+const { Player } = require("./player");
 const { GameSession } = require("./gameSession");
 const { RoundHandler } = require("./roundHandler");
 const { states } = require("./gameStates");
