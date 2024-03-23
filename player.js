@@ -1,3 +1,5 @@
+// Player: used for sending data to an individual player + managing their name
+
 class Player {
   constructor(name, ws) {
     this.name = name;

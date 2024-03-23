@@ -15,6 +15,8 @@ if (!wordList || !wordList.length || wordList.length == 0) {
   }
 }
 
+// RoundHandler: used for managing round-related data + starting, canceling and ending rounds
+
 class RoundHandler {
   constructor(session) {
     if (RoundHandler._instance) {

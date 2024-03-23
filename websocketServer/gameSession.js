@@ -1,3 +1,5 @@
+// GameSession: used for storing chat messages, managing players and broadcasting data to them
+
 class GameSession {
   constructor() {
     if (GameSession._instance) {
