@@ -63,6 +63,8 @@ const GameContainer = () => {
     setConnectionInfoMessage("");
   };
 
+  // Param message: a stringified JSON object containing the message properties which determine
+  // which action(s) will be performed
   const handleMessage = (message) => {
     const parsedData = JSON.parse(message.data);
     const messageValue = parsedData.value;
@@ -119,6 +121,7 @@ const GameContainer = () => {
     setConnectionInfoMessage("The connection to the game server was closed.");
   };
 
+  // Param linePoints: an array of objects which contain properties for each line point (coordinates, color, style)
   const sendNewLineData = (linePoints) => {
     wsRef.current.send(
       JSON.stringify({
@@ -137,6 +140,7 @@ const GameContainer = () => {
     wsRef.current.send(JSON.stringify({ type: "undoDrawing", data: undoAll }));
   };
 
+  // Param inputElement: the <input> element whose value will be cleared when sending a message
   const sendChatMessage = (inputElement) => {
     const message = inputElement.value.trim();
     if (message) {
