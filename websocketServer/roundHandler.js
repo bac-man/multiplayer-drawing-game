@@ -2,7 +2,7 @@ const { states } = require("./gameStates");
 
 let wordList;
 try {
-  wordList = require("./data/customWordList.json");
+  wordList = require("../data/customWordList.json");
 } catch (e) {
   console.log("Custom word list not found.");
 }
