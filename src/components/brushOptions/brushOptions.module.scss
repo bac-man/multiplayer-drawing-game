@@ -7,7 +7,7 @@
   flex: 1 1 0;
   .undoButtons {
     display: flex;
-    gap: $spacing;
+    gap: $small-spacing;
     flex: 0 0 auto;
     @include desktop() {
       gap: 0.5rem;
